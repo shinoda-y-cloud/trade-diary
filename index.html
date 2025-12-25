@@ -9,20 +9,14 @@
       --bg:#0b1020; --card:#111a33; --card2:#0f1730; --text:#e9eefc; --muted:#9fb0dd;
       --line:#22305c; --accent:#67d3ff; --good:#49e3a2; --bad:#ff6b6b; --warn:#ffd166;
     }
-
-    /* ✅ 白画面対策：最重要 */
-    html, body { height: 100%; }
+    *{box-sizing:border-box}
     body{
       margin:0; font-family:system-ui,-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;
-      background-color: var(--bg) !important; /* これで白化を潰す */
-      background:
-        radial-gradient(1200px 700px at 20% -10%, #17306b 0%, transparent 55%),
-        radial-gradient(900px 600px at 110% 20%, #2b145b 0%, transparent 55%),
-        var(--bg) !important;
-      color:var(--text) !important;
+      background:radial-gradient(1200px 700px at 20% -10%, #17306b 0%, transparent 55%),
+                 radial-gradient(900px 600px at 110% 20%, #2b145b 0%, transparent 55%),
+                 var(--bg);
+      color:var(--text);
     }
-
-    *{box-sizing:border-box}
     header{padding:18px 16px 10px; max-width:1100px; margin:0 auto;}
     h1{font-size:18px; margin:0 0 6px;}
     .sub{color:var(--muted); font-size:12px; line-height:1.5;}
@@ -48,19 +42,16 @@
     .row{display:grid; grid-template-columns: 1fr; gap:10px; margin-bottom:12px;}
     @media (min-width: 640px){ .row{grid-template-columns: 1fr 1fr;} }
     label{display:block; font-size:12px; color:var(--muted); margin:0 0 6px;}
-
-    /* ✅ 白化対策：フォーム類の背景/文字を強制 */
     select, input[type="date"], input[type="number"], input[type="text"], textarea{
       width:100%;
-      background:rgba(7,10,20,0.55) !important;
+      background:rgba(7,10,20,0.55);
       border:1px solid rgba(255,255,255,0.12);
-      color:var(--text) !important;
+      color:var(--text);
       border-radius:12px;
       padding:10px 10px;
       outline:none;
     }
     textarea{min-height:64px; resize:vertical;}
-
     .actions{display:flex; flex-wrap:wrap; gap:10px; margin-top:12px;}
     button{
       border:none; cursor:pointer;
@@ -131,10 +122,79 @@
     .dot{width:8px; height:8px; border-radius:99px; background:rgba(255,255,255,0.25);}
     .dot.ok{background:var(--good);}
     .dot.ng{background:var(--bad);}
+
+    /* -------------------------
+       Simple Lock Screen (B: once per device)
+       ------------------------- */
+    .lock-bg{
+      position:fixed; inset:0; z-index:9999;
+      background:radial-gradient(1000px 700px at 20% -10%, rgba(23,48,107,0.85) 0%, rgba(0,0,0,0.75) 55%),
+                 radial-gradient(900px 600px at 110% 20%, rgba(43,20,91,0.85) 0%, rgba(0,0,0,0.65) 55%),
+                 rgba(0,0,0,0.65);
+      display:none; align-items:center; justify-content:center;
+      padding:16px;
+    }
+    .lock{
+      width:min(520px, 100%);
+      background:rgba(17,26,51,0.92);
+      border:1px solid rgba(255,255,255,0.14);
+      border-radius:16px;
+      box-shadow:0 24px 80px rgba(0,0,0,0.55);
+      overflow:hidden;
+    }
+    .lock .hd{
+      padding:14px 16px;
+      border-bottom:1px solid rgba(255,255,255,0.10);
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      background:rgba(17,26,51,0.55);
+    }
+    .lock .bd{padding:16px;}
+    .lock-title{font-weight:800;}
+    .lock-sub{color:var(--muted); font-size:12px; line-height:1.5; margin-top:6px;}
+    .lock-row{display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;}
+    .lock input[type="password"]{
+      flex:1 1 220px;
+      background:rgba(7,10,20,0.55);
+      border:1px solid rgba(255,255,255,0.14);
+      color:var(--text);
+      border-radius:12px;
+      padding:10px 10px;
+      outline:none;
+    }
+    .lock .err{
+      display:none;
+      margin-top:10px;
+      color:var(--bad);
+      font-size:12px;
+    }
   </style>
 </head>
 
 <body>
+
+<!-- Simple Lock Screen (once per device) -->
+<div class="lock-bg" id="lockBg" aria-hidden="true">
+  <div class="lock" role="dialog" aria-modal="true" aria-label="ロック解除">
+    <div class="hd">
+      <div>
+        <div class="lock-title">トレード日記 ロック解除</div>
+        <div class="lock-sub">
+          この端末では<b>一度だけ</b>パスコード入力が必要です（解除状態はブラウザに保存されます）。<br/>
+          ※これは簡易ロックです。強い秘匿が必要ならサーバ認証方式に切替してください。
+        </div>
+      </div>
+    </div>
+    <div class="bd">
+      <label>パスコード</label>
+      <div class="lock-row">
+        <input id="passcodeInput" type="password" placeholder="パスコードを入力" />
+        <button id="btnUnlock" type="button">解除</button>
+      </div>
+      <div class="err" id="lockErr">パスコードが違います。</div>
+    </div>
+  </div>
+</div>
+
 <header>
   <h1>トレード日記（選択式・30秒）</h1>
   <div class="sub">
@@ -158,6 +218,7 @@
         <button class="secondary small" id="btnRestore" type="button">GitHubから復元</button>
         <button class="secondary" id="btnLoadToday" type="button">今日のデータを読込</button>
         <button class="secondary" id="btnResetForm" type="button">フォーム初期化</button>
+        <button class="secondary small" id="btnRelock" type="button" title="この端末の解除状態を消して再度パスコードを要求します">再ロック</button>
       </div>
     </div>
 
@@ -219,7 +280,6 @@
             <option value="1">1</option>
             <option value="2">2</option>
             <option value="3">3</option>
-            <option value="4">4</option>
             <option value="4+">4+</option>
           </select>
 
@@ -299,7 +359,7 @@
       </div>
 
       <div class="hint" id="autoHint">
-        自動バックアップは「保存時にGitHubへ」推奨です（設定でON可能）。<br/>
+        自動バックアップは「保存時にGitHubへ」推奨です（設定でON）。<br/>
         複数端末運用は、<b>復元→追記→バックアップ</b> の順が安全です（このHTMLは自動マージします）。
       </div>
     </div>
@@ -432,6 +492,57 @@
 </div>
 
 <script>
+  // =========================================================
+  // Simple Lock (B: once per device)
+  // =========================================================
+  const PASSCODE = "kyoto.3594"; // ★必ず変更してください（簡易ロック）
+  const UNLOCK_KEY = "tradeDiary_unlocked_v1";
+
+  const lockBg = document.getElementById("lockBg");
+  const passcodeInput = document.getElementById("passcodeInput");
+  const btnUnlock = document.getElementById("btnUnlock");
+  const lockErr = document.getElementById("lockErr");
+
+  function isUnlocked(){
+    return localStorage.getItem(UNLOCK_KEY) === "1";
+  }
+  function showLock(){
+    lockErr.style.display = "none";
+    passcodeInput.value = "";
+    lockBg.style.display = "flex";
+    lockBg.setAttribute("aria-hidden","false");
+    setTimeout(()=>passcodeInput.focus(), 50);
+  }
+  function hideLock(){
+    lockBg.style.display = "none";
+    lockBg.setAttribute("aria-hidden","true");
+  }
+  function unlock(){
+    const v = (passcodeInput.value || "").trim();
+    if(v === PASSCODE){
+      localStorage.setItem(UNLOCK_KEY, "1");
+      hideLock();
+    }else{
+      lockErr.style.display = "block";
+      passcodeInput.focus();
+      passcodeInput.select();
+    }
+  }
+  function relock(){
+    localStorage.removeItem(UNLOCK_KEY);
+    showLock();
+  }
+
+  btnUnlock.addEventListener("click", unlock);
+  passcodeInput.addEventListener("keydown", (e)=>{
+    if(e.key === "Enter") unlock();
+  });
+
+  // 初回のみロック表示
+  if(!isUnlocked()){
+    showLock();
+  }
+
   // -------------------------
   // Storage keys
   // -------------------------
@@ -744,6 +855,7 @@
   }
 
   function b64encodeUnicode(str){
+    // UTF-8 safe base64
     return btoa(unescape(encodeURIComponent(str)));
   }
   function b64decodeUnicode(b64){
@@ -791,7 +903,8 @@
       if(b >= a) map.set(e.date, e);
     }
 
-    return Array.from(map.values()).sort((a,b)=> a.date.localeCompare(b.date));
+    const out = Array.from(map.values()).sort((a,b)=> a.date.localeCompare(b.date));
+    return out;
   }
 
   async function ghPutFile(cfg, mergedEntries, sha){
@@ -893,6 +1006,7 @@
   // -------------------------
   // Event bindings
   // -------------------------
+  // init
   els.date.value = todayISO();
 
   $("btnSave").addEventListener("click", async ()=>{
@@ -902,7 +1016,7 @@
 
     try{
       await maybeAutoBackupOnSave();
-      alert("保存しました。" + ((loadGH()?.autoMode==="onsave" || loadGH()?.autoMode==="both") ? "（GitHubへもバックアップ済み）" : ""));
+      alert("保存しました。" + (loadGH()?.autoMode==="onsave" || loadGH()?.autoMode==="both" ? "（GitHubへもバックアップ済み）" : ""));
     }catch(err){
       alert("保存は完了しましたが、GitHubバックアップに失敗しました。\n" + err.message);
     }
@@ -954,97 +1068,4 @@
     const act = btn.dataset.act;
     const date = btn.dataset.date;
     if(act === "edit"){
-      const all = loadAll();
-      const found = all.find(x => x.date === date);
-      if(found){
-        entryToForm(found);
-        render();
-        window.scrollTo({top:0, behavior:"smooth"});
-      }
-    }
-    if(act === "del"){
-      if(confirm(`${date} を削除しますか？`)){
-        deleteEntry(date);
-        render();
-      }
-    }
-  });
-
-  $("btnGitHub").addEventListener("click", openModal);
-  $("btnCloseModal").addEventListener("click", closeModal);
-  modalBg.addEventListener("click", (e)=>{ if(e.target === modalBg) closeModal(); });
-
-  $("btnSaveGh").addEventListener("click", ()=>{
-    const cfg = {
-      owner: ghOwner.value.trim(),
-      repo: ghRepo.value.trim(),
-      branch: (ghBranch.value.trim() || "main"),
-      path: (ghPath.value.trim() || "data/diary.json"),
-      token: ghToken.value.trim(),
-      autoMode: autoMode.value,
-      autoMinutes: autoMinutes.value,
-    };
-    saveGH(cfg);
-    setStatus(isGHReady(cfg), isGHReady(cfg) ? "設定を保存しました" : "保存しましたが未完了（token等を確認）");
-    updateGitHubLabel();
-    updateAutoHint();
-    startAutoTimerIfNeeded();
-    alert("GitHub設定を保存しました。");
-  });
-
-  $("btnClearGh").addEventListener("click", ()=>{
-    if(confirm("GitHub設定（トークン含む）をこの端末から削除しますか？")){
-      clearGH();
-      setStatus(false, "削除しました");
-      updateGitHubLabel();
-      updateAutoHint();
-      stopAutoTimer();
-    }
-  });
-
-  $("btnTest").addEventListener("click", async ()=>{
-    try{
-      const cfg = {
-        owner: ghOwner.value.trim(),
-        repo: ghRepo.value.trim(),
-        branch: (ghBranch.value.trim() || "main"),
-        path: (ghPath.value.trim() || "data/diary.json"),
-        token: ghToken.value.trim(),
-        autoMode: autoMode.value,
-        autoMinutes: autoMinutes.value,
-      };
-      saveGH(cfg);
-      await githubTest();
-      setStatus(true, "接続OK（ファイルが無くても問題ありません）");
-      updateGitHubLabel();
-      startAutoTimerIfNeeded();
-      alert("接続OKです。");
-    }catch(e){
-      setStatus(false, "接続NG：" + e.message);
-      alert("接続NG：\n" + e.message);
-    }
-  });
-
-  $("btnBackup").addEventListener("click", async ()=>{
-    try{
-      await githubBackupWithMerge();
-      alert("GitHubへバックアップ完了（マージ済み）。");
-    }catch(e){
-      alert("バックアップ失敗：\n" + e.message);
-    }
-  });
-
-  $("btnRestore").addEventListener("click", async ()=>{
-    try{
-      await githubRestoreWithMerge();
-      alert("GitHubから復元完了（マージ済み）。");
-    }catch(e){
-      alert("復元失敗：\n" + e.message);
-    }
-  });
-
-  render();
-  startAutoTimerIfNeeded();
-</script>
-</body>
-</html>
+      const all

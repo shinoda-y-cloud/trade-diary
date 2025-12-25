@@ -2,1121 +2,353 @@
 <html lang="ja">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>トレード日記（選択式・30秒）</title>
+
   <style>
     :root{
-      --bg:#0b1020; --card:#111a33; --card2:#0f1730; --text:#e9eefc; --muted:#9fb0dd;
-      --line:#22305c; --accent:#67d3ff; --good:#49e3a2; --bad:#ff6b6b; --warn:#ffd166;
+      --bg:#0b1020;
+      --card:#151a33;
+      --card2:#1b2142;
+      --text:#e9eefc;
+      --muted:#aab0d6;
+      --accent:#6d7cff;
+      --good:#4ee2a8;
+      --bad:#ff6b6b;
+      --line:rgba(255,255,255,0.12);
     }
+
     *{box-sizing:border-box}
 
-    <!-- 🔐 パスコードロック -->
-<div id="lock-screen" style="
-  position:fixed;
-  inset:0;
-  background:#0b1020;
-  color:#e9eefc;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  z-index:9999;
-">
-  <div style="text-align:center; max-width:320px;">
-    <h2 style="margin-bottom:16px;">トレード日記</h2>
-    <p style="font-size:13px; opacity:0.8;">パスコードを入力してください</p>
-    <input
-      id="passcode-input"
-      type="password"
-      placeholder="Passcode"
-      style="
-        width:100%;
-        padding:10px;
-        margin-top:12px;
-        border-radius:6px;
-        border:none;
-        font-size:16px;
-      "
-    />
-    <button
-      onclick="unlockDiary()"
-      style="
-        width:100%;
-        margin-top:12px;
-        padding:10px;
-        border-radius:6px;
-        border:none;
-        background:#6d7cff;
-        color:white;
-        font-size:14px;
-        cursor:pointer;
-      "
-    >
-      開く
-    </button>
-    <p id="lock-error" style="color:#ff6b6b; font-size:12px; margin-top:10px; display:none;">
+    body{
+      margin:0;
+      background:var(--bg);
+      color:var(--text);
+      font-family:system-ui,-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;
+    }
+
+    header{
+      max-width:1100px;
+      margin:20px auto 0;
+      padding:0 16px;
+    }
+
+    h1{
+      font-size:20px;
+      margin:0 0 4px;
+    }
+
+    .sub{
+      font-size:12px;
+      color:var(--muted);
+    }
+
+    main{
+      max-width:1100px;
+      margin:12px auto 32px;
+      padding:0 16px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:1fr;
+      gap:16px;
+    }
+
+    @media(min-width:960px){
+      .grid{grid-template-columns:1.05fr .95fr}
+    }
+
+    .card{
+      background:linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.04));
+      border:1px solid var(--line);
+      border-radius:16px;
+      box-shadow:0 12px 40px rgba(0,0,0,.45);
+      overflow:hidden;
+    }
+
+    .card .hd{
+      padding:12px 14px;
+      border-bottom:1px solid var(--line);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:8px;
+    }
+
+    .card .bd{
+      padding:14px;
+    }
+
+    label{
+      font-size:12px;
+      color:var(--muted);
+      display:block;
+      margin-bottom:4px;
+    }
+
+    input,select,textarea,button{
+      width:100%;
+      padding:10px;
+      border-radius:8px;
+      border:1px solid var(--line);
+      background:#0f1430;
+      color:var(--text);
+      font-size:14px;
+    }
+
+    textarea{resize:vertical}
+
+    button.primary{
+      background:var(--accent);
+      border:none;
+      font-weight:600;
+      cursor:pointer;
+    }
+
+    button.danger{
+      background:#a93b3b;
+      border:none;
+      font-weight:600;
+      cursor:pointer;
+    }
+
+    .row{margin-bottom:12px}
+
+    .stats{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:12px;
+    }
+
+    .stat{
+      background:var(--card2);
+      border-radius:12px;
+      padding:12px;
+      text-align:center;
+      border:1px solid var(--line);
+    }
+
+    .stat .v{
+      font-size:20px;
+      margin-top:4px;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:13px;
+    }
+
+    th,td{
+      border-bottom:1px solid var(--line);
+      padding:8px;
+      text-align:left;
+    }
+
+    th{color:var(--muted)}
+
+    /* 🔐 パスコード画面 */
+    #lock{
+      position:fixed;
+      inset:0;
+      background:var(--bg);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      z-index:9999;
+    }
+
+    #lock .box{
+      width:280px;
+      text-align:center;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:14px;
+      padding:20px;
+    }
+
+    #lock h2{margin:0 0 8px}
+    #lock p{font-size:12px;color:var(--muted)}
+
+  </style>
+</head>
+
+<body>
+
+<!-- 🔐 LOCK -->
+<div id="lock">
+  <div class="box">
+    <h2>トレード日記</h2>
+    <p>パスコードを入力してください</p>
+    <input id="pass" type="password" placeholder="Passcode">
+    <button class="primary" style="margin-top:12px" onclick="unlock()">開く</button>
+    <p id="err" style="display:none;color:var(--bad);font-size:12px;margin-top:8px">
       パスコードが違います
     </p>
   </div>
 </div>
 
-<script>
-  const CORRECT_PASSCODE = "kyoto.3594"; // ← 好きなコードに変更
-
-  function unlockDiary() {
-    const input = document.getElementById("passcode-input").value;
-    if (input === CORRECT_PASSCODE) {
-      localStorage.setItem("tradeDiaryUnlocked", "true");
-      document.getElementById("lock-screen").style.display = "none";
-    } else {
-      document.getElementById("lock-error").style.display = "block";
-    }
-  }
-
-  window.addEventListener("DOMContentLoaded", () => {
-    if (localStorage.getItem("tradeDiaryUnlocked") === "true") {
-      document.getElementById("lock-screen").style.display = "none";
-    }
-  });
-</script>
-
-    
-    body{
-      margin:0; font-family:system-ui,-apple-system,"Hiragino Sans","Noto Sans JP",sans-serif;
-      background:radial-gradient(1200px 700px at 20% -10%, #17306b 0%, transparent 55%),
-                 radial-gradient(900px 600px at 110% 20%, #2b145b 0%, transparent 55%),
-                 var(--bg);
-      color:var(--text);
-    }
-    header{padding:18px 16px 10px; max-width:1100px; margin:0 auto;}
-    h1{font-size:18px; margin:0 0 6px;}
-    .sub{color:var(--muted); font-size:12px; line-height:1.5;}
-    main{max-width:1100px; margin:0 auto; padding:0 16px 24px;}
-    .grid{display:grid; grid-template-columns: 1fr; gap:12px;}
-    @media (min-width: 980px){ .grid{grid-template-columns: 1.05fr .95fr;} }
-
-    .card{
-      background:linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
-      border:1px solid rgba(255,255,255,0.08);
-      box-shadow:0 12px 40px rgba(0,0,0,0.35);
-      border-radius:16px;
-      overflow:hidden;
-    }
-    .card .hd{
-      padding:12px 14px;
-      border-bottom:1px solid rgba(255,255,255,0.08);
-      display:flex; align-items:center; justify-content:space-between; gap:10px;
-      background:rgba(17,26,51,0.45);
-    }
-    .card .bd{padding:14px;}
-    .pill{font-size:12px; padding:6px 10px; border-radius:999px; border:1px solid rgba(255,255,255,0.12); color:var(--muted);}
-    .row{display:grid; grid-template-columns: 1fr; gap:10px; margin-bottom:12px;}
-    @media (min-width: 640px){ .row{grid-template-columns: 1fr 1fr;} }
-    label{display:block; font-size:12px; color:var(--muted); margin:0 0 6px;}
-    select, input[type="date"], input[type="number"], input[type="text"], textarea{
-      width:100%;
-      background:rgba(7,10,20,0.55);
-      border:1px solid rgba(255,255,255,0.12);
-      color:var(--text);
-      border-radius:12px;
-      padding:10px 10px;
-      outline:none;
-    }
-    textarea{min-height:64px; resize:vertical;}
-    .actions{display:flex; flex-wrap:wrap; gap:10px; margin-top:12px;}
-    button{
-      border:none; cursor:pointer;
-      padding:10px 12px; border-radius:12px;
-      color:#06101a; background:var(--accent);
-      font-weight:700;
-    }
-    button.secondary{background:transparent; color:var(--text); border:1px solid rgba(255,255,255,0.18);}
-    button.danger{background:var(--bad); color:#1a0606;}
-    button.small{padding:7px 10px; border-radius:10px; font-size:12px;}
-    .kpi{
-      display:grid; grid-template-columns: repeat(2,1fr); gap:10px;
-    }
-    @media (min-width: 640px){ .kpi{grid-template-columns: repeat(4,1fr);} }
-    .kpi .box{
-      background:rgba(7,10,20,0.45);
-      border:1px solid rgba(255,255,255,0.10);
-      border-radius:14px; padding:10px;
-    }
-    .kpi .t{font-size:11px; color:var(--muted);}
-    .kpi .v{font-size:18px; font-weight:800; margin-top:4px;}
-    .v.good{color:var(--good)}
-    .v.bad{color:var(--bad)}
-    .tbl{width:100%; border-collapse:separate; border-spacing:0 8px;}
-    .tbl th{font-size:11px; color:var(--muted); font-weight:600; text-align:left; padding:0 8px;}
-    .tbl td{
-      background:rgba(7,10,20,0.45);
-      border:1px solid rgba(255,255,255,0.08);
-      padding:8px; border-radius:12px;
-      vertical-align:top; font-size:12px;
-    }
-    .mini{font-size:11px; color:var(--muted); line-height:1.45;}
-    .tag{
-      display:inline-block; font-size:11px; padding:3px 8px; border-radius:999px;
-      border:1px solid rgba(255,255,255,0.16); color:var(--muted); margin-right:6px;
-    }
-    .tag.good{border-color: rgba(73,227,162,0.45); color: var(--good);}
-    .tag.bad{border-color: rgba(255,107,107,0.45); color: var(--bad);}
-    .tag.warn{border-color: rgba(255,209,102,0.45); color: var(--warn);}
-    .right{display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; align-items:center;}
-    .hint{margin-top:10px; color:var(--muted); font-size:12px; line-height:1.5;}
-
-    /* modal */
-    .modal-bg{
-      position:fixed; inset:0;
-      background:rgba(0,0,0,0.55);
-      display:none; align-items:center; justify-content:center;
-      padding:16px;
-    }
-    .modal{
-      width:min(820px, 100%);
-      background:rgba(17,26,51,0.92);
-      border:1px solid rgba(255,255,255,0.12);
-      border-radius:16px;
-      box-shadow:0 24px 80px rgba(0,0,0,0.55);
-      overflow:hidden;
-    }
-    .modal .hd{
-      padding:12px 14px;
-      border-bottom:1px solid rgba(255,255,255,0.10);
-      display:flex; align-items:center; justify-content:space-between;
-    }
-    .modal .bd{padding:14px;}
-    .status{
-      font-size:12px; color:var(--muted);
-      display:flex; gap:10px; flex-wrap:wrap; align-items:center;
-    }
-    .dot{width:8px; height:8px; border-radius:99px; background:rgba(255,255,255,0.25);}
-    .dot.ok{background:var(--good);}
-    .dot.ng{background:var(--bad);}
-  </style>
-</head>
-
-<body>
 <header>
   <h1>トレード日記（選択式・30秒）</h1>
   <div class="sub">
-    入力は基本「選択」だけ。保存はローカル／GitHubへ1クリックバックアップ・復元。複数端末は <b>マージ（updatedAt優先）</b> で衝突回避。
+    入力は基本「選択」だけ。保存はローカル／GitHub。複数端末はGitHubが正。
   </div>
 </header>
 
-<main class="grid">
+<main>
+  <div class="grid">
 
-  <!-- 入力 -->
-  <section class="card">
-    <div class="hd">
-      <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
-        <div class="pill">今日の記録</div>
-        <div class="pill" id="todayLabel">—</div>
-        <div class="pill" id="ghLabel">GitHub: 未設定</div>
-      </div>
-      <div class="right">
-        <button class="secondary small" id="btnGitHub" type="button">GitHub設定</button>
-        <button class="secondary small" id="btnBackup" type="button">GitHubへバックアップ</button>
-        <button class="secondary small" id="btnRestore" type="button">GitHubから復元</button>
-        <button class="secondary" id="btnLoadToday" type="button">今日のデータを読込</button>
-        <button class="secondary" id="btnResetForm" type="button">フォーム初期化</button>
-      </div>
-    </div>
-
-    <div class="bd">
-      <div class="row">
+    <!-- 入力 -->
+    <div class="card">
+      <div class="hd">
+        <strong>今日の記録</strong>
         <div>
+          <button onclick="alert('次ステップで実装')" >GitHub設定</button>
+        </div>
+      </div>
+      <div class="bd">
+
+        <div class="row">
           <label>日付</label>
-          <input type="date" id="date" />
+          <input id="date" type="date">
         </div>
-        <div>
-          <label>相場タイプ（体感）</label>
-          <select id="marketType">
-            <option value="不明">不明</option>
-            <option value="トレンド">トレンド</option>
-            <option value="レンジ">レンジ</option>
-            <option value="荒い">荒い（乱高下）</option>
-            <option value="薄い">薄い（値動き悪い）</option>
-          </select>
-        </div>
-      </div>
 
-      <div class="row">
-        <div>
+        <div class="row">
           <label>本日の結果</label>
           <select id="result">
-            <option value="未入力">未入力</option>
-            <option value="勝ち">勝ち</option>
-            <option value="負け">負け</option>
-            <option value="トントン">トントン</option>
-            <option value="ノートレ">ノートレ</option>
-          </select>
-        </div>
-        <div>
-          <label>損益（円） ※だいたいでOK（未入力可）</label>
-          <input type="number" id="pnl" placeholder="例：-4000 / 6500" />
-        </div>
-      </div>
-
-      <div class="row">
-        <div>
-          <label>主戦銘柄（複数可）</label>
-          <select id="tickers" multiple size="6">
-            <option value="8031 三井物産">8031 三井物産</option>
-            <option value="8058 三菱商事">8058 三菱商事</option>
-            <option value="9503 関西電力">9503 関西電力</option>
-            <option value="5020 ENEOS">5020 ENEOS</option>
-            <option value="5401 日本製鉄">5401 日本製鉄</option>
-            <option value="3099 三越伊勢丹">3099 三越伊勢丹</option>
-            <option value="7011 三菱重工">7011 三菱重工</option>
-            <option value="6501 日立">6501 日立</option>
-          </select>
-          <div class="mini">Ctrl/⌘で複数選択。主戦が無ければ空でもOK。</div>
-        </div>
-
-        <div>
-          <label>エントリー回数（ざっくり）</label>
-          <select id="trades">
-            <option value="0">0</option>
-            <option value="1">1</option>
-            <option value="2">2</option>
-            <option value="3">3</option>
-            <option value="4+">4+</option>
-          </select>
-
-          <label style="margin-top:10px;">優勢だった方向（体感）</label>
-          <select id="bias">
-            <option value="不明">不明</option>
-            <option value="ロング">ロング</option>
-            <option value="ショート">ショート</option>
-            <option value="両方ダメ">両方ダメ</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="row">
-        <div>
-          <label>負けの主因（1つだけ選択）</label>
-          <select id="lossCause">
-            <option value="未入力">未入力</option>
-            <option value="地合い悪（方向出ず）">地合い悪（方向出ず）</option>
-            <option value="ブレイクダマシ">ブレイクダマシ</option>
-            <option value="逆張り癖">逆張り癖</option>
-            <option value="利確が早い">利確が早い</option>
-            <option value="損切りが遅い">損切りが遅い</option>
-            <option value="エントリーが早い">エントリーが早い</option>
-            <option value="ロットが重い">ロットが重い</option>
-            <option value="集中できない">集中できない</option>
+            <option>未入力</option>
+            <option>勝ち</option>
+            <option>負け</option>
+            <option>引き分け</option>
           </select>
         </div>
 
-        <div>
-          <label>守れたルール（1つだけ）</label>
-          <select id="keptRule">
-            <option value="未入力">未入力</option>
-            <option value="損切りを徹底">損切りを徹底</option>
-            <option value="ロット抑制">ロット抑制</option>
-            <option value="迷ったら見送り">迷ったら見送り</option>
-            <option value="1銘柄集中">1銘柄集中</option>
-            <option value="エントリー待てた">エントリー待てた</option>
+        <div class="row">
+          <label>損益（円・ざっくり）</label>
+          <input id="pnl" placeholder="例：-4000 / 6500">
+        </div>
+
+        <div class="row">
+          <label>主戦銘柄</label>
+          <select id="symbol" multiple size="5">
+            <option>8031 三井物産</option>
+            <option>8058 三菱商事</option>
+            <option>9503 関西電力</option>
+            <option>5020 ENEOS</option>
+            <option>5401 日本製鉄</option>
+            <option>3099 三越伊勢丹</option>
           </select>
         </div>
-      </div>
 
-      <div class="row">
-        <div>
-          <label>今日の自己評価（S/A/B/C）</label>
-          <select id="grade">
-            <option value="未入力">未入力</option>
-            <option value="S">S（完璧）</option>
-            <option value="A">A（良い）</option>
-            <option value="B">B（普通）</option>
-            <option value="C">C（悪い）</option>
-          </select>
+        <div class="row">
+          <label>一言メモ</label>
+          <textarea id="memo" rows="2" placeholder="例：初動で焦った"></textarea>
         </div>
-        <div>
-          <label>明日の改善アクション（選択）</label>
-          <select id="nextAction">
-            <option value="未入力">未入力</option>
-            <option value="寄り15分は触らない">寄り15分は触らない</option>
-            <option value="VWAP付近は見送り">VWAP付近は見送り</option>
-            <option value="ブレイクは2本確定後">ブレイクは2本確定後</option>
-            <option value="1日1銘柄に絞る">1日1銘柄に絞る</option>
-            <option value="初動200株固定">初動200株固定</option>
-            <option value="ノートレも正解とする">ノートレも正解とする</option>
-          </select>
-        </div>
-      </div>
 
-      <div>
-        <label>一言メモ（任意・短く）</label>
-        <input type="text" id="memo" maxlength="80" placeholder="例：方向出ず。-4000で撤退。深追いせずOK" />
-      </div>
+        <button class="primary" onclick="save()">保存（ローカル）</button>
+        <button class="danger" style="margin-top:8px" onclick="clearAll()">全削除</button>
 
-      <div class="actions">
-        <button id="btnSave" type="button">保存（ローカル）</button>
-        <button class="secondary" id="btnExportCsv" type="button">CSV書き出し</button>
-        <button class="danger" id="btnClearAll" type="button">全データ削除</button>
-      </div>
-
-      <div class="hint" id="autoHint">
-        自動バックアップは「保存時にGitHubへ」推奨です（設定でON）。<br/>
-        複数端末運用は、<b>復元→追記→バックアップ</b> の順が安全です（このHTMLは自動マージします）。
       </div>
     </div>
-  </section>
 
-  <!-- 集計 -->
-  <section class="card">
-    <div class="hd">
-      <div class="pill">ダッシュボード</div>
-      <div class="pill" id="countLabel">0件</div>
-    </div>
-    <div class="bd">
-      <div class="kpi">
-        <div class="box">
-          <div class="t">今月 損益合計</div>
-          <div class="v" id="kpiMonthPnl">0</div>
-        </div>
-        <div class="box">
-          <div class="t">勝率（勝ち/(勝ち+負け)）</div>
-          <div class="v" id="kpiWinRate">—</div>
-        </div>
-        <div class="box">
-          <div class="t">ノートレ率</div>
-          <div class="v" id="kpiNoTrade">—</div>
-        </div>
-        <div class="box">
-          <div class="t">最多の負け主因</div>
-          <div class="v" id="kpiTopCause" style="font-size:14px;">—</div>
-        </div>
+    <!-- 一覧 -->
+    <div class="card">
+      <div class="hd">
+        <strong>ダッシュボード</strong>
       </div>
+      <div class="bd">
 
-      <div style="margin-top:14px;">
-        <table class="tbl">
+        <div class="stats">
+          <div class="stat">
+            <div>今月件数</div>
+            <div class="v" id="cnt">0</div>
+          </div>
+          <div class="stat">
+            <div>勝率</div>
+            <div class="v" id="win">—</div>
+          </div>
+        </div>
+
+        <table style="margin-top:14px">
           <thead>
             <tr>
-              <th style="width:95px;">日付</th>
-              <th style="width:70px;">結果</th>
-              <th style="width:90px;">損益</th>
-              <th>要約</th>
-              <th style="width:90px;">操作</th>
+              <th>日付</th>
+              <th>結果</th>
+              <th>損益</th>
+              <th>銘柄</th>
             </tr>
           </thead>
           <tbody id="rows"></tbody>
         </table>
+
       </div>
     </div>
-  </section>
 
+  </div>
 </main>
 
-<!-- GitHub settings modal -->
-<div class="modal-bg" id="modalBg" aria-hidden="true">
-  <div class="modal" role="dialog" aria-modal="true" aria-label="GitHub設定">
-    <div class="hd">
-      <div class="pill">GitHub設定（1回だけ）</div>
-      <div class="right">
-        <button class="secondary small" id="btnTest" type="button">接続テスト</button>
-        <button class="secondary small" id="btnCloseModal" type="button">閉じる</button>
-      </div>
-    </div>
-    <div class="bd">
-      <div class="status" id="ghStatus">
-        <span class="dot" id="statusDot"></span>
-        <span id="statusText">未設定</span>
-      </div>
-
-      <div class="row" style="margin-top:12px;">
-        <div>
-          <label>owner（ユーザー名）</label>
-          <input id="ghOwner" type="text" placeholder="例：shinoda-y" />
-        </div>
-        <div>
-          <label>repo（リポジトリ名）</label>
-          <input id="ghRepo" type="text" placeholder="例：trade-diary" />
-        </div>
-      </div>
-
-      <div class="row">
-        <div>
-          <label>branch</label>
-          <input id="ghBranch" type="text" placeholder="main" />
-        </div>
-        <div>
-          <label>path（保存先）</label>
-          <input id="ghPath" type="text" placeholder="data/diary.json" />
-          <div class="mini">リポジトリ内のファイルパス。存在しなくてもOK（初回は作成します）。</div>
-        </div>
-      </div>
-
-      <div class="row">
-        <div>
-          <label>token（Fine-grained PAT / Contents RW）</label>
-          <input id="ghToken" type="text" placeholder="github_pat_..." />
-          <div class="mini">
-            注意：この端末のブラウザ（localStorage）に保存します。<br/>
-            公開リポジトリにこのHTMLを置く運用は避けてください。
-          </div>
-        </div>
-        <div>
-          <label>自動バックアップ</label>
-          <select id="autoMode">
-            <option value="off">OFF</option>
-            <option value="onsave">保存時にGitHubへ（推奨）</option>
-            <option value="interval">n分ごと（ページを開いている間）</option>
-            <option value="both">保存時 + n分ごと</option>
-          </select>
-
-          <label style="margin-top:10px;">n分（interval用）</label>
-          <select id="autoMinutes">
-            <option value="5">5</option>
-            <option value="10">10</option>
-            <option value="15" selected>15</option>
-            <option value="30">30</option>
-            <option value="60">60</option>
-          </select>
-        </div>
-      </div>
-
-      <div class="actions">
-        <button id="btnSaveGh" type="button">設定を保存</button>
-        <button class="secondary" id="btnClearGh" type="button">GitHub設定を削除</button>
-      </div>
-
-      <div class="hint">
-        複数端末運用の型：<b>①復元 → ②記録 → ③バックアップ</b><br/>
-        ただし本HTMLは <b>バックアップ/復元のどちらでもマージ</b> するため、事故率は低いです。
-      </div>
-    </div>
-  </div>
-</div>
-
 <script>
-  // -------------------------
-  // Storage keys
-  // -------------------------
-  const KEY = "tradeDiary_v1";      // entries array
-  const GHKEY = "tradeDiary_github"; // github config
+  const PASSCODE = "shinoda-trade"; // ←必ず変更してください
+  const KEY = "trade-diary";
 
-  const $ = (id) => document.getElementById(id);
-
-  const els = {
-    date: $("date"),
-    marketType: $("marketType"),
-    result: $("result"),
-    pnl: $("pnl"),
-    tickers: $("tickers"),
-    trades: $("trades"),
-    bias: $("bias"),
-    lossCause: $("lossCause"),
-    keptRule: $("keptRule"),
-    grade: $("grade"),
-    nextAction: $("nextAction"),
-    memo: $("memo"),
-  };
-
-  const ui = {
-    todayLabel: $("todayLabel"),
-    ghLabel: $("ghLabel"),
-    countLabel: $("countLabel"),
-    rows: $("rows"),
-    kpiMonthPnl: $("kpiMonthPnl"),
-    kpiWinRate: $("kpiWinRate"),
-    kpiNoTrade: $("kpiNoTrade"),
-    kpiTopCause: $("kpiTopCause"),
-    autoHint: $("autoHint"),
-  };
-
-  // modal
-  const modalBg = $("modalBg");
-  const ghStatusDot = $("statusDot");
-  const ghStatusText = $("statusText");
-  const ghOwner = $("ghOwner");
-  const ghRepo = $("ghRepo");
-  const ghBranch = $("ghBranch");
-  const ghPath = $("ghPath");
-  const ghToken = $("ghToken");
-  const autoMode = $("autoMode");
-  const autoMinutes = $("autoMinutes");
-
-  // auto backup timer
-  let autoTimer = null;
-
-  function todayISO(){
-    const d = new Date();
-    const tz = new Date(d.getTime() - d.getTimezoneOffset()*60000);
-    return tz.toISOString().slice(0,10);
+  function unlock(){
+    const v = document.getElementById("pass").value;
+    if(v === PASSCODE){
+      localStorage.setItem("unlocked","1");
+      document.getElementById("lock").style.display="none";
+    }else{
+      document.getElementById("err").style.display="block";
+    }
   }
 
-  function loadAll(){
-    try { return JSON.parse(localStorage.getItem(KEY) || "[]"); }
-    catch(e){ return []; }
-  }
-  function saveAll(rows){
-    localStorage.setItem(KEY, JSON.stringify(rows));
+  if(localStorage.getItem("unlocked")==="1"){
+    document.getElementById("lock").style.display="none";
   }
 
-  function getSelectedOptions(selectEl){
-    return Array.from(selectEl.selectedOptions).map(o => o.value);
-  }
-  function setSelectedOptions(selectEl, values){
-    const set = new Set(values || []);
-    Array.from(selectEl.options).forEach(o => o.selected = set.has(o.value));
+  function load(){
+    return JSON.parse(localStorage.getItem(KEY)||"[]");
   }
 
-  function formToEntry(){
-    return {
-      date: els.date.value || todayISO(),
-      marketType: els.marketType.value,
-      result: els.result.value,
-      pnl: els.pnl.value === "" ? null : Number(els.pnl.value),
-      tickers: getSelectedOptions(els.tickers),
-      trades: els.trades.value,
-      bias: els.bias.value,
-      lossCause: els.lossCause.value,
-      keptRule: els.keptRule.value,
-      grade: els.grade.value,
-      nextAction: els.nextAction.value,
-      memo: (els.memo.value || "").trim(),
-      updatedAt: new Date().toISOString(),
-    };
-  }
-
-  function entryToForm(e){
-    els.date.value = e.date || todayISO();
-    els.marketType.value = e.marketType || "不明";
-    els.result.value = e.result || "未入力";
-    els.pnl.value = (e.pnl === null || e.pnl === undefined) ? "" : String(e.pnl);
-    setSelectedOptions(els.tickers, e.tickers || []);
-    els.trades.value = e.trades || "0";
-    els.bias.value = e.bias || "不明";
-    els.lossCause.value = e.lossCause || "未入力";
-    els.keptRule.value = e.keptRule || "未入力";
-    els.grade.value = e.grade || "未入力";
-    els.nextAction.value = e.nextAction || "未入力";
-    els.memo.value = e.memo || "";
-  }
-
-  function upsertEntry(entry){
-    const all = loadAll();
-    const idx = all.findIndex(x => x.date === entry.date);
-    if(idx >= 0) all[idx] = entry;
-    else all.push(entry);
-    all.sort((a,b)=> a.date.localeCompare(b.date));
-    saveAll(all);
-  }
-
-  function deleteEntry(date){
-    const all = loadAll().filter(x => x.date !== date);
-    saveAll(all);
+  function save(){
+    const data = load();
+    data.push({
+      date:date.value,
+      result:result.value,
+      pnl:pnl.value,
+      symbol:[...symbol.selectedOptions].map(o=>o.value).join(", "),
+      memo:memo.value
+    });
+    localStorage.setItem(KEY,JSON.stringify(data));
+    render();
   }
 
   function clearAll(){
-    localStorage.removeItem(KEY);
-  }
-
-  function fmtYen(n){
-    if(n === null || n === undefined) return "—";
-    const sign = n > 0 ? "+" : "";
-    return sign + n.toLocaleString("ja-JP");
-  }
-
-  function tagForResult(result){
-    if(result === "勝ち") return `<span class="tag good">勝ち</span>`;
-    if(result === "負け") return `<span class="tag bad">負け</span>`;
-    if(result === "トントン") return `<span class="tag warn">トントン</span>`;
-    if(result === "ノートレ") return `<span class="tag">ノートレ</span>`;
-    return `<span class="tag">未入力</span>`;
-  }
-
-  function buildSummary(e){
-    const t = (e.tickers && e.tickers.length) ? e.tickers.join(" / ") : "—";
-    const parts = [
-      `${t}`,
-      `相場:${e.marketType || "—"}`,
-      `方向:${e.bias || "—"}`,
-      `原因:${e.lossCause || "—"}`,
-      `明日:${e.nextAction || "—"}`,
-    ];
-    const memo = e.memo ? `／メモ:${e.memo}` : "";
-    return parts.join(" | ") + memo;
+    if(confirm("全データを削除しますか？")){
+      localStorage.removeItem(KEY);
+      render();
+    }
   }
 
   function render(){
-    const all = loadAll();
-    ui.countLabel.textContent = `${all.length}件`;
-    ui.todayLabel.textContent = `今日: ${els.date.value || todayISO()}`;
-
-    // KPI（今月）
-    const now = new Date();
-    const ym = now.toISOString().slice(0,7); // YYYY-MM
-    const thisMonth = all.filter(x => (x.date || "").startsWith(ym));
-    const monthPnl = thisMonth.reduce((acc,x)=> acc + (Number.isFinite(x.pnl) ? x.pnl : 0), 0);
-
-    ui.kpiMonthPnl.textContent = fmtYen(monthPnl);
-    ui.kpiMonthPnl.className = "v " + (monthPnl>0 ? "good" : (monthPnl<0 ? "bad" : ""));
-
-    // 勝率
-    const wins = thisMonth.filter(x => x.result==="勝ち").length;
-    const losses = thisMonth.filter(x => x.result==="負け").length;
-    ui.kpiWinRate.textContent = (wins+losses)>0 ? `${Math.round((wins/(wins+losses))*100)}%` : "—";
-
-    // ノートレ率
-    const nt = thisMonth.filter(x => x.result==="ノートレ").length;
-    ui.kpiNoTrade.textContent = thisMonth.length>0 ? `${Math.round((nt/thisMonth.length)*100)}%` : "—";
-
-    // 最多原因
-    const counts = new Map();
-    thisMonth.forEach(x=>{
-      const c = x.lossCause || "未入力";
-      if(c==="未入力") return;
-      counts.set(c,(counts.get(c)||0)+1);
+    const d = load();
+    rows.innerHTML="";
+    d.forEach(r=>{
+      rows.innerHTML+=`<tr>
+        <td>${r.date}</td>
+        <td>${r.result}</td>
+        <td>${r.pnl}</td>
+        <td>${r.symbol}</td>
+      </tr>`;
     });
-    let top = "—", topN = 0;
-    counts.forEach((v,k)=>{ if(v>topN){ topN=v; top=k; }});
-    ui.kpiTopCause.textContent = top;
-
-    // Rows
-    ui.rows.innerHTML = "";
-    all.slice().reverse().forEach(e=>{
-      const tr = document.createElement("tr");
-      const pnlClass = Number.isFinite(e.pnl) ? (e.pnl>0 ? "good" : (e.pnl<0 ? "bad" : "")) : "";
-      tr.innerHTML = `
-        <td>${e.date || "—"}</td>
-        <td>${tagForResult(e.result)}</td>
-        <td><span class="${pnlClass}">${fmtYen(e.pnl)}</span></td>
-        <td>${buildSummary(e)}</td>
-        <td>
-          <button class="secondary small" data-act="edit" data-date="${e.date}" type="button">編集</button>
-          <button class="danger small" data-act="del" data-date="${e.date}" type="button" style="margin-left:6px;">削除</button>
-        </td>
-      `;
-      ui.rows.appendChild(tr);
-    });
-
-    updateGitHubLabel();
-    updateAutoHint();
+    cnt.textContent=d.length;
+    const w=d.filter(x=>x.result==="勝ち").length;
+    win.textContent=d.length?Math.round(w/d.length*100)+"%":"—";
   }
 
-  function exportCSV(){
-    const all = loadAll();
-    const header = [
-      "date","marketType","result","pnl","tickers","trades","bias","lossCause","keptRule","grade","nextAction","memo","updatedAt"
-    ];
-    const esc = (s) => {
-      if(s===null || s===undefined) return "";
-      const str = String(s).replaceAll('"','""');
-      return `"${str}"`;
-    };
-    const lines = [header.join(",")];
-    all.forEach(e=>{
-      const row = [
-        e.date,
-        e.marketType,
-        e.result,
-        (Number.isFinite(e.pnl) ? e.pnl : ""),
-        (e.tickers || []).join(" / "),
-        e.trades,
-        e.bias,
-        e.lossCause,
-        e.keptRule,
-        e.grade,
-        e.nextAction,
-        e.memo,
-        e.updatedAt
-      ].map(esc).join(",");
-      lines.push(row);
-    });
-
-    const blob = new Blob([lines.join("\n")], {type:"text/csv;charset=utf-8"});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "trade-diary.csv";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-  }
-
-  // -------------------------
-  // GitHub config
-  // -------------------------
-  function loadGH(){
-    try{
-      return JSON.parse(localStorage.getItem(GHKEY) || "null");
-    }catch(e){ return null; }
-  }
-  function saveGH(cfg){
-    localStorage.setItem(GHKEY, JSON.stringify(cfg));
-  }
-  function clearGH(){
-    localStorage.removeItem(GHKEY);
-  }
-
-  function isGHReady(cfg){
-    return cfg && cfg.owner && cfg.repo && cfg.branch && cfg.path && cfg.token;
-  }
-
-  function updateGitHubLabel(){
-    const cfg = loadGH();
-    if(!isGHReady(cfg)){
-      ui.ghLabel.textContent = "GitHub: 未設定";
-      return;
-    }
-    ui.ghLabel.textContent = `GitHub: ${cfg.owner}/${cfg.repo}@${cfg.branch} (${cfg.path})`;
-  }
-
-  function setStatus(ok, text){
-    ghStatusDot.className = "dot" + (ok ? " ok" : " ng");
-    ghStatusText.textContent = text;
-  }
-
-  function openModal(){
-    const cfg = loadGH() || {
-      owner:"", repo:"", branch:"main", path:"data/diary.json", token:"",
-      autoMode:"onsave", autoMinutes:"15"
-    };
-    ghOwner.value = cfg.owner || "";
-    ghRepo.value = cfg.repo || "";
-    ghBranch.value = cfg.branch || "main";
-    ghPath.value = cfg.path || "data/diary.json";
-    ghToken.value = cfg.token || "";
-    autoMode.value = cfg.autoMode || "onsave";
-    autoMinutes.value = cfg.autoMinutes || "15";
-
-    setStatus(isGHReady(cfg), isGHReady(cfg) ? "設定済み" : "未設定（owner/repo/path/token を入力）");
-    modalBg.style.display = "flex";
-    modalBg.setAttribute("aria-hidden","false");
-  }
-
-  function closeModal(){
-    modalBg.style.display = "none";
-    modalBg.setAttribute("aria-hidden","true");
-  }
-
-  function ghApiHeaders(cfg){
-    return {
-      "Authorization": `token ${cfg.token}`,
-      "Accept": "application/vnd.github+json",
-      "Content-Type": "application/json",
-    };
-  }
-
-  function b64encodeUnicode(str){
-    // UTF-8 safe base64
-    return btoa(unescape(encodeURIComponent(str)));
-  }
-  function b64decodeUnicode(b64){
-    return decodeURIComponent(escape(atob(b64)));
-  }
-
-  async function ghGetFile(cfg){
-    const url = `https://api.github.com/repos/${cfg.owner}/${cfg.repo}/contents/${cfg.path}?ref=${encodeURIComponent(cfg.branch)}`;
-    const res = await fetch(url, { headers: ghApiHeaders(cfg) });
-    if(res.status === 404) return { exists:false, sha:null, data:null };
-    if(!res.ok){
-      const txt = await res.text();
-      throw new Error(`GitHub GET failed: ${res.status} ${txt}`);
-    }
-    const json = await res.json();
-    const content = json.content ? b64decodeUnicode(json.content.replaceAll("\n","")) : null;
-    let data = null;
-    try{ data = content ? JSON.parse(content) : null; }catch(e){ data = null; }
-    return { exists:true, sha:json.sha, data };
-  }
-
-  function normalizeEntries(arr){
-    if(!Array.isArray(arr)) return [];
-    return arr
-      .filter(x => x && x.date)
-      .map(x => ({
-        ...x,
-        updatedAt: x.updatedAt || new Date(0).toISOString(),
-      }));
-  }
-
-  function mergeEntries(localArr, remoteArr){
-    const l = normalizeEntries(localArr);
-    const r = normalizeEntries(remoteArr);
-    const map = new Map();
-
-    // put older first, then overwrite by updatedAt logic
-    for(const e of [...l, ...r]){
-      const prev = map.get(e.date);
-      if(!prev){
-        map.set(e.date, e);
-        continue;
-      }
-      const a = new Date(prev.updatedAt).getTime();
-      const b = new Date(e.updatedAt).getTime();
-      if(b >= a) map.set(e.date, e);
-    }
-
-    const out = Array.from(map.values()).sort((a,b)=> a.date.localeCompare(b.date));
-    return out;
-  }
-
-  async function ghPutFile(cfg, mergedEntries, sha){
-    const url = `https://api.github.com/repos/${cfg.owner}/${cfg.repo}/contents/${cfg.path}`;
-    const body = {
-      message: `trade diary backup ${new Date().toISOString()}`,
-      content: b64encodeUnicode(JSON.stringify(mergedEntries, null, 2)),
-      branch: cfg.branch,
-      ...(sha ? { sha } : {}),
-    };
-    const res = await fetch(url, { method:"PUT", headers: ghApiHeaders(cfg), body: JSON.stringify(body) });
-    if(!res.ok){
-      const txt = await res.text();
-      throw new Error(`GitHub PUT failed: ${res.status} ${txt}`);
-    }
-    return await res.json();
-  }
-
-  async function githubBackupWithMerge(){
-    const cfg = loadGH();
-    if(!isGHReady(cfg)) throw new Error("GitHub設定が未完了です（設定→保存→接続テスト）。");
-
-    // remote
-    const remote = await ghGetFile(cfg);
-    const local = loadAll();
-    const merged = mergeEntries(local, remote.data);
-
-    // push merged
-    await ghPutFile(cfg, merged, remote.sha);
-
-    // also update local to merged to ensure consistency
-    saveAll(merged);
-    render();
-  }
-
-  async function githubRestoreWithMerge(){
-    const cfg = loadGH();
-    if(!isGHReady(cfg)) throw new Error("GitHub設定が未完了です（設定→保存→接続テスト）。");
-
-    const remote = await ghGetFile(cfg);
-    const local = loadAll();
-    const merged = mergeEntries(local, remote.data);
-
-    // write merged to local
-    saveAll(merged);
-    render();
-  }
-
-  async function githubTest(){
-    const cfg = loadGH();
-    if(!isGHReady(cfg)) throw new Error("GitHub設定が未完了です（owner/repo/branch/path/token）。");
-    await ghGetFile(cfg); // existence is ok
-    return true;
-  }
-
-  function updateAutoHint(){
-    const cfg = loadGH();
-    if(!cfg || !cfg.autoMode || cfg.autoMode==="off"){
-      ui.autoHint.innerHTML = `自動バックアップ：<b>OFF</b>（設定でON可能）。<br/>複数端末は <b>復元→追記→バックアップ</b> が安全です（本HTMLは自動マージ）。`;
-      return;
-    }
-    if(cfg.autoMode==="onsave"){
-      ui.autoHint.innerHTML = `自動バックアップ：<b>保存時にGitHubへ</b>（推奨）。<br/>複数端末でも <b>updatedAt</b> でマージします。`;
-      return;
-    }
-    if(cfg.autoMode==="interval"){
-      ui.autoHint.innerHTML = `自動バックアップ：<b>${cfg.autoMinutes}分ごと</b>（ページを開いている間）。<br/>安全性のため復元も適宜行ってください（本HTMLはマージ）。`;
-      return;
-    }
-    ui.autoHint.innerHTML = `自動バックアップ：<b>保存時 + ${cfg.autoMinutes}分ごと</b>。<br/>複数端末でもマージ（updatedAt優先）で衝突回避します。`;
-  }
-
-  function stopAutoTimer(){
-    if(autoTimer){ clearInterval(autoTimer); autoTimer = null; }
-  }
-
-  function startAutoTimerIfNeeded(){
-    stopAutoTimer();
-    const cfg = loadGH();
-    if(!isGHReady(cfg)) return;
-    if(cfg.autoMode !== "interval" && cfg.autoMode !== "both") return;
-
-    const mins = Number(cfg.autoMinutes || 15);
-    const ms = Math.max(1, mins) * 60 * 1000;
-
-    autoTimer = setInterval(async ()=>{
-      try{
-        await githubBackupWithMerge();
-        console.log("Auto backup OK");
-      }catch(e){
-        console.warn("Auto backup failed", e);
-      }
-    }, ms);
-  }
-
-  async function maybeAutoBackupOnSave(){
-    const cfg = loadGH();
-    if(!isGHReady(cfg)) return;
-    if(cfg.autoMode !== "onsave" && cfg.autoMode !== "both") return;
-    await githubBackupWithMerge();
-  }
-
-  // -------------------------
-  // Event bindings
-  // -------------------------
-  // init
-  els.date.value = todayISO();
-
-  $("btnSave").addEventListener("click", async ()=>{
-    const e = formToEntry();
-    upsertEntry(e);
-    render();
-
-    // Auto backup on save if configured
-    try{
-      await maybeAutoBackupOnSave();
-      alert("保存しました。" + (loadGH()?.autoMode==="onsave" || loadGH()?.autoMode==="both" ? "（GitHubへもバックアップ済み）" : ""));
-    }catch(err){
-      alert("保存は完了しましたが、GitHubバックアップに失敗しました。\n" + err.message);
-    }
-  });
-
-  $("btnLoadToday").addEventListener("click", ()=>{
-    const d = els.date.value || todayISO();
-    const all = loadAll();
-    const found = all.find(x => x.date === d);
-    if(!found){
-      alert("今日の保存データはありません。");
-      return;
-    }
-    entryToForm(found);
-    render();
-  });
-
-  $("btnResetForm").addEventListener("click", ()=>{
-    entryToForm({
-      date: todayISO(),
-      marketType:"不明",
-      result:"未入力",
-      pnl:null,
-      tickers:[],
-      trades:"0",
-      bias:"不明",
-      lossCause:"未入力",
-      keptRule:"未入力",
-      grade:"未入力",
-      nextAction:"未入力",
-      memo:""
-    });
-    render();
-  });
-
-  $("btnExportCsv").addEventListener("click", exportCSV);
-
-  $("btnClearAll").addEventListener("click", ()=>{
-    if(confirm("全データを削除します。本当に良いですか？")){
-      clearAll();
-      render();
-      alert("全データを削除しました。");
-    }
-  });
-
-  ui.rows.addEventListener("click", (ev)=>{
-    const btn = ev.target.closest("button");
-    if(!btn) return;
-    const act = btn.dataset.act;
-    const date = btn.dataset.date;
-    if(act === "edit"){
-      const all = loadAll();
-      const found = all.find(x => x.date === date);
-      if(found){
-        entryToForm(found);
-        render();
-        window.scrollTo({top:0, behavior:"smooth"});
-      }
-    }
-    if(act === "del"){
-      if(confirm(`${date} を削除しますか？`)){
-        deleteEntry(date);
-        render();
-      }
-    }
-  });
-
-  // GitHub buttons
-  $("btnGitHub").addEventListener("click", openModal);
-  $("btnCloseModal").addEventListener("click", closeModal);
-  modalBg.addEventListener("click", (e)=>{ if(e.target === modalBg) closeModal(); });
-
-  $("btnSaveGh").addEventListener("click", ()=>{
-    const cfg = {
-      owner: ghOwner.value.trim(),
-      repo: ghRepo.value.trim(),
-      branch: (ghBranch.value.trim() || "main"),
-      path: (ghPath.value.trim() || "data/diary.json"),
-      token: ghToken.value.trim(),
-      autoMode: autoMode.value,
-      autoMinutes: autoMinutes.value,
-    };
-    saveGH(cfg);
-    setStatus(isGHReady(cfg), isGHReady(cfg) ? "設定を保存しました" : "保存しましたが未完了（token等を確認）");
-    updateGitHubLabel();
-    updateAutoHint();
-    startAutoTimerIfNeeded();
-    alert("GitHub設定を保存しました。");
-  });
-
-  $("btnClearGh").addEventListener("click", ()=>{
-    if(confirm("GitHub設定（トークン含む）をこの端末から削除しますか？")){
-      clearGH();
-      setStatus(false, "削除しました");
-      updateGitHubLabel();
-      updateAutoHint();
-      stopAutoTimer();
-    }
-  });
-
-  $("btnTest").addEventListener("click", async ()=>{
-    try{
-      const cfg = {
-        owner: ghOwner.value.trim(),
-        repo: ghRepo.value.trim(),
-        branch: (ghBranch.value.trim() || "main"),
-        path: (ghPath.value.trim() || "data/diary.json"),
-        token: ghToken.value.trim(),
-        autoMode: autoMode.value,
-        autoMinutes: autoMinutes.value,
-      };
-      saveGH(cfg);
-      await githubTest();
-      setStatus(true, "接続OK（ファイルが無くても問題ありません）");
-      updateGitHubLabel();
-      startAutoTimerIfNeeded();
-      alert("接続OKです。");
-    }catch(e){
-      setStatus(false, "接続NG：" + e.message);
-      alert("接続NG：\n" + e.message);
-    }
-  });
-
-  $("btnBackup").addEventListener("click", async ()=>{
-    try{
-      await githubBackupWithMerge();
-      alert("GitHubへバックアップ完了（マージ済み）。");
-    }catch(e){
-      alert("バックアップ失敗：\n" + e.message);
-    }
-  });
-
-  $("btnRestore").addEventListener("click", async ()=>{
-    try{
-      await githubRestoreWithMerge();
-      alert("GitHubから復元完了（マージ済み）。");
-    }catch(e){
-      alert("復元失敗：\n" + e.message);
-    }
-  });
-
-  // start
+  date.value = new Date().toISOString().slice(0,10);
   render();
-  startAutoTimerIfNeeded();
 </script>
+
 </body>
 </html>

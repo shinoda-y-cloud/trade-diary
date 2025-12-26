@@ -18,5 +18,20 @@
     "nextAction": "ノートレも正解とする",
     "memo": "年末がこんなに地合い悪くなるということを学んだ。昨日も全く動かなかった。明日もきっと動かないだろう。",
     "updatedAt": "2025-12-25T16:05:06.103Z"
+  },
+  {
+    "date": "2025-12-26",
+    "marketType": "不明",
+    "result": "未入力",
+    "pnl": null,
+    "tickers": [],
+    "trades": "0",
+    "bias": "不明",
+    "lossCause": "未入力",
+    "keptRule": "未入力",
+    "grade": "未入力",
+    "nextAction": "未入力",
+    "memo": "",
+    "updatedAt": "2025-12-26T01:57:41.694Z"
   }
 ]

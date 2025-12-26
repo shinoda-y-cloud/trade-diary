@@ -21,17 +21,22 @@
   },
   {
     "date": "2025-12-26",
-    "marketType": "不明",
-    "result": "未入力",
-    "pnl": null,
-    "tickers": [],
-    "trades": "0",
-    "bias": "不明",
-    "lossCause": "未入力",
-    "keptRule": "未入力",
-    "grade": "未入力",
+    "marketType": "薄い",
+    "result": "勝ち",
+    "pnl": 15012,
+    "tickers": [
+      "8031 三井物産",
+      "9503 関西電力",
+      "5020 ENEOS",
+      "7011 三菱重工"
+    ],
+    "trades": "4+",
+    "bias": "ショート",
+    "lossCause": "逆張り癖",
+    "keptRule": "損切りを徹底",
+    "grade": "A",
     "nextAction": "未入力",
-    "memo": "",
-    "updatedAt": "2025-12-26T01:57:41.694Z"
+    "memo": "◎ 良かった点（再現性あり）  東邦亜鉛の押し目買いは機能  分割エントリー → 小刻み利確（+9,000 / +8,400 / +2,400 / +1,200",
+    "updatedAt": "2025-12-26T18:39:48.017Z"
   }
 ]

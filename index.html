@@ -94,12 +94,24 @@
     .right{display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; align-items:center;}
     .hint{margin-top:10px; color:var(--muted); font-size:12px; line-height:1.5;}
 
+    /* chips */
+    .chip-group{display:flex; flex-wrap:wrap; gap:8px;}
+    .chip{
+      display:flex; align-items:center; gap:6px;
+      padding:7px 10px; border-radius:999px;
+      background:rgba(255,255,255,0.06);
+      border:1px solid rgba(255,255,255,0.12);
+      font-size:12px; cursor:pointer; user-select:none;
+    }
+    .chip input{accent-color: var(--accent);}
+
     /* modal */
     .modal-bg{
       position:fixed; inset:0;
       background:rgba(0,0,0,0.55);
       display:none; align-items:center; justify-content:center;
       padding:16px;
+      z-index:50;
     }
     .modal{
       width:min(820px, 100%);
@@ -123,78 +135,41 @@
     .dot.ok{background:var(--good);}
     .dot.ng{background:var(--bad);}
 
-    /* -------------------------
-       Simple Lock Screen (B: once per device)
-       ------------------------- */
+    /* passcode lock */
     .lock-bg{
-      position:fixed; inset:0; z-index:9999;
-      background:radial-gradient(1000px 700px at 20% -10%, rgba(23,48,107,0.85) 0%, rgba(0,0,0,0.75) 55%),
-                 radial-gradient(900px 600px at 110% 20%, rgba(43,20,91,0.85) 0%, rgba(0,0,0,0.65) 55%),
-                 rgba(0,0,0,0.65);
-      display:none; align-items:center; justify-content:center;
+      position:fixed; inset:0;
+      background:
+        radial-gradient(1200px 700px at 20% -10%, #17306b 0%, transparent 55%),
+        radial-gradient(900px 600px at 110% 20%, #2b145b 0%, transparent 55%),
+        var(--bg);
+      display:none;
+      align-items:center;
+      justify-content:center;
       padding:16px;
+      z-index:100;
     }
-    .lock{
+    .lock-card{
       width:min(520px, 100%);
       background:rgba(17,26,51,0.92);
-      border:1px solid rgba(255,255,255,0.14);
+      border:1px solid rgba(255,255,255,0.12);
       border-radius:16px;
       box-shadow:0 24px 80px rgba(0,0,0,0.55);
       overflow:hidden;
     }
-    .lock .hd{
+    .lock-card .hd{
       padding:14px 16px;
       border-bottom:1px solid rgba(255,255,255,0.10);
-      display:flex; align-items:center; justify-content:space-between; gap:10px;
-      background:rgba(17,26,51,0.55);
+      display:flex; align-items:center; justify-content:space-between;
     }
-    .lock .bd{padding:16px;}
+    .lock-card .bd{padding:14px 16px;}
     .lock-title{font-weight:800;}
-    .lock-sub{color:var(--muted); font-size:12px; line-height:1.5; margin-top:6px;}
-    .lock-row{display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;}
-    .lock input[type="password"]{
-      flex:1 1 220px;
-      background:rgba(7,10,20,0.55);
-      border:1px solid rgba(255,255,255,0.14);
-      color:var(--text);
-      border-radius:12px;
-      padding:10px 10px;
-      outline:none;
-    }
-    .lock .err{
-      display:none;
-      margin-top:10px;
-      color:var(--bad);
-      font-size:12px;
-    }
+    .lock-err{display:none; color:var(--bad); font-size:12px; margin-top:10px;}
+    .lock-row{display:flex; gap:10px; margin-top:10px;}
+    .lock-row input{flex:1;}
   </style>
 </head>
 
 <body>
-
-<!-- Simple Lock Screen (once per device) -->
-<div class="lock-bg" id="lockBg" aria-hidden="true">
-  <div class="lock" role="dialog" aria-modal="true" aria-label="ロック解除">
-    <div class="hd">
-      <div>
-        <div class="lock-title">トレード日記 ロック解除</div>
-        <div class="lock-sub">
-          この端末では<b>一度だけ</b>パスコード入力が必要です（解除状態はブラウザに保存されます）。<br/>
-          ※これは簡易ロックです。強い秘匿が必要ならサーバ認証方式に切替してください。
-        </div>
-      </div>
-    </div>
-    <div class="bd">
-      <label>パスコード</label>
-      <div class="lock-row">
-        <input id="passcodeInput" type="password" placeholder="パスコードを入力" />
-        <button id="btnUnlock" type="button">解除</button>
-      </div>
-      <div class="err" id="lockErr">パスコードが違います。</div>
-    </div>
-  </div>
-</div>
-
 <header>
   <h1>トレード日記（選択式・30秒）</h1>
   <div class="sub">
@@ -218,7 +193,7 @@
         <button class="secondary small" id="btnRestore" type="button">GitHubから復元</button>
         <button class="secondary" id="btnLoadToday" type="button">今日のデータを読込</button>
         <button class="secondary" id="btnResetForm" type="button">フォーム初期化</button>
-        <button class="secondary small" id="btnRelock" type="button" title="この端末の解除状態を消して再度パスコードを要求します">再ロック</button>
+        <button class="secondary small" id="btnRelock" type="button">再ロック</button>
       </div>
     </div>
 
@@ -259,18 +234,22 @@
 
       <div class="row">
         <div>
-          <label>主戦銘柄（複数可）</label>
-          <select id="tickers" multiple size="6">
-            <option value="8031 三井物産">8031 三井物産</option>
-            <option value="8058 三菱商事">8058 三菱商事</option>
-            <option value="9503 関西電力">9503 関西電力</option>
-            <option value="5020 ENEOS">5020 ENEOS</option>
-            <option value="5401 日本製鉄">5401 日本製鉄</option>
-            <option value="3099 三越伊勢丹">3099 三越伊勢丹</option>
-            <option value="7011 三菱重工">7011 三菱重工</option>
-            <option value="6501 日立">6501 日立</option>
-          </select>
-          <div class="mini">Ctrl/⌘で複数選択。主戦が無ければ空でもOK。</div>
+          <label>主戦銘柄（主力6 + 例外入力）</label>
+
+          <div class="chip-group" id="coreTickers">
+            <label class="chip"><input type="checkbox" value="8031 三井物産">8031 三井物産</label>
+            <label class="chip"><input type="checkbox" value="9503 関西電力">9503 関西電力</label>
+            <label class="chip"><input type="checkbox" value="5020 ENEOS">5020 ENEOS</label>
+            <label class="chip"><input type="checkbox" value="3099 三越伊勢丹">3099 三越伊勢丹</label>
+            <label class="chip"><input type="checkbox" value="7011 三菱重工">7011 三菱重工</label>
+            <label class="chip"><input type="checkbox" value="6501 日立">6501 日立</label>
+          </div>
+
+          <div style="margin-top:10px;">
+            <label>その他の銘柄（自由入力・カンマ区切り）</label>
+            <input type="text" id="extraTickers" placeholder="例：9101 商船三井, 8306 三菱UFJ" />
+            <div class="mini">主力以外を触った日はここに追記。表記は自由（コードが無くてもOK）。</div>
+          </div>
         </div>
 
         <div>
@@ -410,6 +389,28 @@
 
 </main>
 
+<!-- Passcode lock -->
+<div class="lock-bg" id="lockBg" aria-hidden="true">
+  <div class="lock-card">
+    <div class="hd">
+      <div class="lock-title">パスコード認証</div>
+      <div class="pill">ローカル保護（簡易）</div>
+    </div>
+    <div class="bd">
+      <div class="mini">注意：これは「簡易ロック」です。ソースを見られる環境では完全防御にはなりません。</div>
+      <div class="lock-row">
+        <input id="lockPass" type="password" placeholder="パスコードを入力" />
+        <button id="btnUnlock" type="button">解除</button>
+      </div>
+      <div class="lock-err" id="lockErr">パスコードが違います。</div>
+      <div class="hint" style="margin-top:12px;">
+        パスコードはHTML内の <b>PASSCODE</b> を変更してください。<br/>
+        端末ごとに「解除済み」が保存されます（解除後は再ロック可能）。
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- GitHub settings modal -->
 <div class="modal-bg" id="modalBg" aria-hidden="true">
   <div class="modal" role="dialog" aria-modal="true" aria-label="GitHub設定">
@@ -429,7 +430,7 @@
       <div class="row" style="margin-top:12px;">
         <div>
           <label>owner（ユーザー名）</label>
-          <input id="ghOwner" type="text" placeholder="例：shinoda-y" />
+          <input id="ghOwner" type="text" placeholder="例：shinoda-y-cloud" />
         </div>
         <div>
           <label>repo（リポジトリ名）</label>
@@ -452,7 +453,7 @@
       <div class="row">
         <div>
           <label>token（Fine-grained PAT / Contents RW）</label>
-          <input id="ghToken" type="text" placeholder="github_pat_..." />
+          <input id="ghToken" type="password" placeholder="github_pat_..." />
           <div class="mini">
             注意：この端末のブラウザ（localStorage）に保存します。<br/>
             公開リポジトリにこのHTMLを置く運用は避けてください。
@@ -492,40 +493,37 @@
 </div>
 
 <script>
-  // =========================================================
-  // Simple Lock (B: once per device)
-  // =========================================================
-  const PASSCODE = "kyoto.3594"; // ★必ず変更してください（簡易ロック）
+  // =========================
+  // PASSCODE LOCK (B案)
+  // =========================
+  const PASSCODE = "kyoto.3594"; // ★必ず変更してください（例：shinoda-trade など）
   const UNLOCK_KEY = "tradeDiary_unlocked_v1";
 
   const lockBg = document.getElementById("lockBg");
-  const passcodeInput = document.getElementById("passcodeInput");
-  const btnUnlock = document.getElementById("btnUnlock");
+  const lockPass = document.getElementById("lockPass");
   const lockErr = document.getElementById("lockErr");
 
-  function isUnlocked(){
-    return localStorage.getItem(UNLOCK_KEY) === "1";
-  }
   function showLock(){
     lockErr.style.display = "none";
-    passcodeInput.value = "";
+    lockPass.value = "";
     lockBg.style.display = "flex";
     lockBg.setAttribute("aria-hidden","false");
-    setTimeout(()=>passcodeInput.focus(), 50);
+    setTimeout(()=>lockPass.focus(), 50);
   }
   function hideLock(){
     lockBg.style.display = "none";
     lockBg.setAttribute("aria-hidden","true");
   }
+  function isUnlocked(){
+    return localStorage.getItem(UNLOCK_KEY) === "1";
+  }
   function unlock(){
-    const v = (passcodeInput.value || "").trim();
+    const v = (lockPass.value || "").trim();
     if(v === PASSCODE){
       localStorage.setItem(UNLOCK_KEY, "1");
       hideLock();
     }else{
       lockErr.style.display = "block";
-      passcodeInput.focus();
-      passcodeInput.select();
     }
   }
   function relock(){
@@ -533,21 +531,17 @@
     showLock();
   }
 
-  btnUnlock.addEventListener("click", unlock);
-  passcodeInput.addEventListener("keydown", (e)=>{
-    if(e.key === "Enter") unlock();
-  });
+  document.getElementById("btnUnlock").addEventListener("click", unlock);
+  lockPass.addEventListener("keydown", (e)=>{ if(e.key==="Enter") unlock(); });
 
-  // 初回のみロック表示
-  if(!isUnlocked()){
-    showLock();
-  }
+  // 初期表示
+  if(!isUnlocked()) showLock();
 
   // -------------------------
   // Storage keys
   // -------------------------
-  const KEY = "tradeDiary_v1";      // entries array
-  const GHKEY = "tradeDiary_github"; // github config
+  const KEY = "tradeDiary_v1";        // entries array
+  const GHKEY = "tradeDiary_github";  // github config
 
   const $ = (id) => document.getElementById(id);
 
@@ -556,7 +550,6 @@
     marketType: $("marketType"),
     result: $("result"),
     pnl: $("pnl"),
-    tickers: $("tickers"),
     trades: $("trades"),
     bias: $("bias"),
     lossCause: $("lossCause"),
@@ -564,6 +557,7 @@
     grade: $("grade"),
     nextAction: $("nextAction"),
     memo: $("memo"),
+    extraTickers: $("extraTickers"),
   };
 
   const ui = {
@@ -577,6 +571,35 @@
     kpiTopCause: $("kpiTopCause"),
     autoHint: $("autoHint"),
   };
+
+  // core tickers
+  const CORE = [
+    "8031 三井物産",
+    "9503 関西電力",
+    "5020 ENEOS",
+    "3099 三越伊勢丹",
+    "7011 三菱重工",
+    "6501 日立",
+  ];
+  const coreSet = new Set(CORE);
+
+  function getCoreTickers(){
+    return Array.from(document.querySelectorAll("#coreTickers input:checked"))
+      .map(el => el.value);
+  }
+  function setCoreTickers(values){
+    const set = new Set(values || []);
+    Array.from(document.querySelectorAll("#coreTickers input"))
+      .forEach(el => { el.checked = set.has(el.value); });
+  }
+  function getExtraTickers(){
+    const v = (els.extraTickers.value || "").trim();
+    if(!v) return [];
+    return v.split(",").map(s=>s.trim()).filter(Boolean);
+  }
+  function setExtraTickers(values){
+    els.extraTickers.value = (values && values.length) ? values.join(", ") : "";
+  }
 
   // modal
   const modalBg = $("modalBg");
@@ -607,21 +630,14 @@
     localStorage.setItem(KEY, JSON.stringify(rows));
   }
 
-  function getSelectedOptions(selectEl){
-    return Array.from(selectEl.selectedOptions).map(o => o.value);
-  }
-  function setSelectedOptions(selectEl, values){
-    const set = new Set(values || []);
-    Array.from(selectEl.options).forEach(o => o.selected = set.has(o.value));
-  }
-
   function formToEntry(){
+    const tickers = [...getCoreTickers(), ...getExtraTickers()];
     return {
       date: els.date.value || todayISO(),
       marketType: els.marketType.value,
       result: els.result.value,
       pnl: els.pnl.value === "" ? null : Number(els.pnl.value),
-      tickers: getSelectedOptions(els.tickers),
+      tickers,
       trades: els.trades.value,
       bias: els.bias.value,
       lossCause: els.lossCause.value,
@@ -638,7 +654,13 @@
     els.marketType.value = e.marketType || "不明";
     els.result.value = e.result || "未入力";
     els.pnl.value = (e.pnl === null || e.pnl === undefined) ? "" : String(e.pnl);
-    setSelectedOptions(els.tickers, e.tickers || []);
+
+    const list = Array.isArray(e.tickers) ? e.tickers : [];
+    const core = list.filter(t => coreSet.has(t));
+    const extra = list.filter(t => !coreSet.has(t));
+    setCoreTickers(core);
+    setExtraTickers(extra);
+
     els.trades.value = e.trades || "0";
     els.bias.value = e.bias || "不明";
     els.lossCause.value = e.lossCause || "未入力";
@@ -855,7 +877,6 @@
   }
 
   function b64encodeUnicode(str){
-    // UTF-8 safe base64
     return btoa(unescape(encodeURIComponent(str)));
   }
   function b64decodeUnicode(b64){
@@ -932,7 +953,6 @@
     const merged = mergeEntries(local, remote.data);
 
     await ghPutFile(cfg, merged, remote.sha);
-
     saveAll(merged);
     render();
   }
@@ -1006,8 +1026,9 @@
   // -------------------------
   // Event bindings
   // -------------------------
-  // init
   els.date.value = todayISO();
+
+  $("btnRelock").addEventListener("click", relock);
 
   $("btnSave").addEventListener("click", async ()=>{
     const e = formToEntry();
@@ -1016,7 +1037,9 @@
 
     try{
       await maybeAutoBackupOnSave();
-      alert("保存しました。" + (loadGH()?.autoMode==="onsave" || loadGH()?.autoMode==="both" ? "（GitHubへもバックアップ済み）" : ""));
+      const cfg = loadGH();
+      const auto = cfg && (cfg.autoMode==="onsave" || cfg.autoMode==="both");
+      alert("保存しました。" + (auto ? "（GitHubへもバックアップ済み）" : ""));
     }catch(err){
       alert("保存は完了しましたが、GitHubバックアップに失敗しました。\n" + err.message);
     }
@@ -1068,4 +1091,99 @@
     const act = btn.dataset.act;
     const date = btn.dataset.date;
     if(act === "edit"){
-      const all
+      const all = loadAll();
+      const found = all.find(x => x.date === date);
+      if(found){
+        entryToForm(found);
+        render();
+        window.scrollTo({top:0, behavior:"smooth"});
+      }
+    }
+    if(act === "del"){
+      if(confirm(`${date} を削除しますか？`)){
+        deleteEntry(date);
+        render();
+      }
+    }
+  });
+
+  // GitHub buttons
+  $("btnGitHub").addEventListener("click", openModal);
+  $("btnCloseModal").addEventListener("click", closeModal);
+  modalBg.addEventListener("click", (e)=>{ if(e.target === modalBg) closeModal(); });
+
+  $("btnSaveGh").addEventListener("click", ()=>{
+    const cfg = {
+      owner: ghOwner.value.trim(),
+      repo: ghRepo.value.trim(),
+      branch: (ghBranch.value.trim() || "main"),
+      path: (ghPath.value.trim() || "data/diary.json"),
+      token: ghToken.value.trim(),
+      autoMode: autoMode.value,
+      autoMinutes: autoMinutes.value,
+    };
+    saveGH(cfg);
+    setStatus(isGHReady(cfg), isGHReady(cfg) ? "設定を保存しました" : "保存しましたが未完了（token等を確認）");
+    updateGitHubLabel();
+    updateAutoHint();
+    startAutoTimerIfNeeded();
+    alert("GitHub設定を保存しました。");
+  });
+
+  $("btnClearGh").addEventListener("click", ()=>{
+    if(confirm("GitHub設定（トークン含む）をこの端末から削除しますか？")){
+      clearGH();
+      setStatus(false, "削除しました");
+      updateGitHubLabel();
+      updateAutoHint();
+      stopAutoTimer();
+    }
+  });
+
+  $("btnTest").addEventListener("click", async ()=>{
+    try{
+      const cfg = {
+        owner: ghOwner.value.trim(),
+        repo: ghRepo.value.trim(),
+        branch: (ghBranch.value.trim() || "main"),
+        path: (ghPath.value.trim() || "data/diary.json"),
+        token: ghToken.value.trim(),
+        autoMode: autoMode.value,
+        autoMinutes: autoMinutes.value,
+      };
+      saveGH(cfg);
+      await githubTest();
+      setStatus(true, "接続OK（ファイルが無くても問題ありません）");
+      updateGitHubLabel();
+      startAutoTimerIfNeeded();
+      alert("接続OKです。");
+    }catch(e){
+      setStatus(false, "接続NG：" + e.message);
+      alert("接続NG：\n" + e.message);
+    }
+  });
+
+  $("btnBackup").addEventListener("click", async ()=>{
+    try{
+      await githubBackupWithMerge();
+      alert("GitHubへバックアップ完了（マージ済み）。");
+    }catch(e){
+      alert("バックアップ失敗：\n" + e.message);
+    }
+  });
+
+  $("btnRestore").addEventListener("click", async ()=>{
+    try{
+      await githubRestoreWithMerge();
+      alert("GitHubから復元完了（マージ済み）。");
+    }catch(e){
+      alert("復元失敗：\n" + e.message);
+    }
+  });
+
+  // start
+  render();
+  startAutoTimerIfNeeded();
+</script>
+</body>
+</html>

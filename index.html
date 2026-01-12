@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>トレード日記（Compact版）</title>
+  <title>トレード日記（Pro版）</title>
   <style>
     :root{
       --bg:#0b1020; --card:#111a33; --text:#e9eefc; --muted:#9fb0dd;
@@ -19,11 +19,10 @@
       color:var(--text); padding-bottom:40px;
     }
     
-    /* Layout Containers */
     .container { max-width:1000px; margin:0 auto; padding:0 16px; }
     header { padding:20px 0 10px; display:flex; justify-content:space-between; align-items:end; flex-wrap:wrap; gap:10px; }
     h1 { font-size:18px; margin:0; }
-    .header-btns { display:flex; gap:8px; }
+    .header-btns { display:flex; gap:8px; flex-wrap:wrap; }
 
     /* Card Design */
     .card {
@@ -57,7 +56,7 @@
     select:focus, input:focus { border-color:var(--accent); background:rgba(0,0,0,0.5); }
     textarea { min-height:38px; height:38px; resize:vertical; }
 
-    /* Full Width Items */
+    /* Layout Helpers */
     .col-full { grid-column: 1 / -1; }
     .col-half { grid-column: span 1; }
     @media (min-width: 600px) { .col-half { grid-column: span 2; } }
@@ -65,7 +64,7 @@
     /* Buttons */
     button {
       border:none; cursor:pointer; padding:6px 12px; border-radius:6px;
-      font-size:12px; font-weight:700; transition:0.2s;
+      font-size:12px; font-weight:700; transition:0.2s; white-space:nowrap;
     }
     .btn-primary { background:var(--accent); color:#0b1020; }
     .btn-primary:hover { opacity:0.9; }
@@ -73,6 +72,7 @@
     .btn-sec:hover { border-color:var(--text); color:var(--text); }
     .btn-danger { background:rgba(255,107,107,0.2); color:var(--bad); border:1px solid var(--bad); }
     .btn-danger:hover { background:var(--bad); color:#fff; }
+    .btn-icon { padding:6px 10px; }
 
     /* Chips */
     .chip-group { display:flex; flex-wrap:wrap; gap:6px; }
@@ -83,6 +83,7 @@
     }
     .chip:hover { background:rgba(255,255,255,0.1); }
     .chip input { width:auto; margin:0; }
+    .chip-del { margin-left:6px; color:var(--bad); cursor:pointer; font-weight:bold; }
 
     /* Dashboard & Table */
     .kpi-row { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:15px; }
@@ -99,14 +100,18 @@
     .tag.win { border-color:var(--good); color:var(--good); }
     .tag.lose { border-color:var(--bad); color:var(--bad); }
 
-    /* Utilities */
     .flex-center { display:flex; align-items:center; gap:8px; }
     .text-right { text-align:right; }
     .mini-text { font-size:10px; color:var(--muted); margin-top:4px; }
 
-    /* Modal & Lock (Preserved) */
+    /* Modals */
     .overlay { position:fixed; inset:0; background:rgba(0,0,0,0.6); display:none; justify-content:center; align-items:center; z-index:99; padding:10px;}
-    .modal-box { width:min(500px, 100%); background:#0f1730; border:1px solid var(--border); border-radius:12px; padding:20px; box-shadow:0 20px 50px #000; }
+    .modal-box { width:min(600px, 100%); background:#0f1730; border:1px solid var(--border); border-radius:12px; padding:20px; box-shadow:0 20px 50px #000; max-height:90vh; overflow-y:auto;}
+    
+    /* Config Modal Specifics */
+    .cfg-section { margin-bottom:20px; border-bottom:1px solid var(--border); padding-bottom:12px; }
+    .cfg-list { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+    .cfg-add-row { display:flex; gap:8px; margin-top:8px; }
   </style>
 </head>
 
@@ -115,10 +120,11 @@
 <div class="container">
   <header>
     <div>
-      <h1>トレード日記</h1>
+      <h1>トレード日記 (Pro)</h1>
       <div class="mini-text" id="ghLabel">GitHub: 未設定</div>
     </div>
     <div class="header-btns">
+      <button class="btn-sec" id="btnConfig">⚙️ 選択肢の編集</button>
       <button class="btn-sec" id="btnGitHub">GitHub設定</button>
       <button class="btn-sec" id="btnBackup">バックアップ</button>
       <button class="btn-sec" id="btnRestore">復元</button>
@@ -165,14 +171,8 @@
       </div>
 
       <div>
-        <label>回数</label>
-        <select id="trades">
-          <option value="0">0</option>
-          <option value="1">1</option>
-          <option value="2">2</option>
-          <option value="3">3</option>
-          <option value="4+">4+</option>
-        </select>
+        <label>エントリー回数</label>
+        <input type="number" id="trades" placeholder="回数 (例: 5)" />
       </div>
       <div>
         <label>方向感</label>
@@ -185,28 +185,11 @@
       </div>
       <div>
         <label>負け主因</label>
-        <select id="lossCause">
-          <option value="未入力">未入力</option>
-          <option value="逆張り癖">逆張り癖</option>
-          <option value="地合い悪">地合い悪</option>
-          <option value="ダマシ">ブレイクダマシ</option>
-          <option value="早利確">利確が早い</option>
-          <option value="遅損切">損切りが遅い</option>
-          <option value="ポジポジ">エントリーが早い</option>
-          <option value="ロット過多">ロットが重い</option>
-          <option value="メンタル">集中できない</option>
-        </select>
+        <select id="lossCause"></select>
       </div>
       <div>
         <label>守れたルール</label>
-        <select id="keptRule">
-          <option value="未入力">未入力</option>
-          <option value="損切りを徹底">損切りを徹底</option>
-          <option value="ロット抑制">ロット抑制</option>
-          <option value="迷ったら見送り">迷ったら見送り</option>
-          <option value="1銘柄集中">1銘柄集中</option>
-          <option value="待てた">エントリー待てた</option>
-        </select>
+        <select id="keptRule"></select>
       </div>
 
       <div>
@@ -221,27 +204,12 @@
       </div>
       <div>
         <label>明日のアクション</label>
-        <select id="nextAction">
-          <option value="未入力">未入力</option>
-          <option value="地合いを見て目線を切り替える">地合いを見て目線を切り替える</option>
-          <option value="寄り15分は触らない">寄り15分は触らない</option>
-          <option value="VWAP付近は見送り">VWAP付近は見送り</option>
-          <option value="ブレイクは2本確定後">ブレイクは2本確定後</option>
-          <option value="1日1銘柄に絞る">1日1銘柄に絞る</option>
-          <option value="ノートレも正解とする">ノートレも正解とする</option>
-        </select>
+        <select id="nextAction"></select>
       </div>
 
       <div class="col-half">
-        <label>主戦銘柄</label>
-        <div class="chip-group" id="coreTickers">
-          <label class="chip"><input type="checkbox" value="8031 三井物産">三井物産</label>
-          <label class="chip"><input type="checkbox" value="9503 関西電力">関電</label>
-          <label class="chip"><input type="checkbox" value="5020 ENEOS">ENEOS</label>
-          <label class="chip"><input type="checkbox" value="3099 三越伊勢丹">伊勢丹</label>
-          <label class="chip"><input type="checkbox" value="7011 三菱重工">重工</label>
-          <label class="chip"><input type="checkbox" value="6501 日立">日立</label>
-        </div>
+        <label>主戦銘柄 (選択 + 自由入力)</label>
+        <div class="chip-group" id="coreTickers"></div>
         <input type="text" id="extraTickers" placeholder="その他 (例: 9101 商船三井)" style="margin-top:6px;" />
       </div>
 
@@ -310,6 +278,19 @@
   </div>
 </div>
 
+<div class="overlay" id="configBg">
+  <div class="modal-box">
+    <div style="display:flex; justify-content:space-between; margin-bottom:16px;">
+      <h3 style="margin:0;">選択肢の編集</h3>
+      <button class="btn-sec" id="btnCloseConfig" style="padding:2px 8px;">閉じる</button>
+    </div>
+    
+    <div id="cfgContainer">
+      </div>
+    <div class="mini-text">※ 変更は自動保存されます。</div>
+  </div>
+</div>
+
 <div class="overlay" id="modalBg">
   <div class="modal-box">
     <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
@@ -344,16 +325,136 @@
 
 <script>
   // =========================
-  // LOGIC PRESERVED FROM ORIGINAL
+  // MASTER DATA & CONFIG
   // =========================
-  const PASSCODE = "kyoto.3594"; // ★パスコード
+  const OPT_KEY = "tradeDiary_options";
+  
+  const DEFAULTS = {
+    lossCause: ["逆張り癖", "地合い悪", "ブレイクダマシ", "利確が早い", "損切りが遅い", "エントリーが早い", "ロットが重い", "集中できない"],
+    keptRule: ["損切りを徹底", "ロット抑制", "迷ったら見送り", "1銘柄集中", "エントリー待てた", "後場エントリーしない"],
+    nextAction: ["地合いを見て目線を切り替える", "寄り15分は触らない", "VWAP付近は見送り", "ブレイクは2本確定後", "1日1銘柄に絞る", "ノートレも正解とする"],
+    coreTickers: ["8031 三井物産", "9503 関西電力", "5020 ENEOS", "3099 三越伊勢丹", "7011 三菱重工", "6501 日立"]
+  };
+
+  let userOpts = JSON.parse(localStorage.getItem(OPT_KEY) || "null") || JSON.parse(JSON.stringify(DEFAULTS));
+
+  function saveUserOpts(){
+    localStorage.setItem(OPT_KEY, JSON.stringify(userOpts));
+    renderSelects();
+  }
+
+  // Render Select Options
+  function renderSelects(){
+    const fill = (id, list) => {
+      const el = document.getElementById(id);
+      if(!el) return;
+      el.innerHTML = '<option value="未入力">未入力</option>';
+      list.forEach(v => {
+        const op = document.createElement("option");
+        op.value = v; op.textContent = v;
+        el.appendChild(op);
+      });
+    };
+    
+    fill("lossCause", userOpts.lossCause);
+    fill("keptRule", userOpts.keptRule);
+    fill("nextAction", userOpts.nextAction);
+
+    // Ticker Chips
+    const tc = document.getElementById("coreTickers");
+    tc.innerHTML = "";
+    userOpts.coreTickers.forEach(t => {
+      const lbl = document.createElement("label");
+      lbl.className = "chip";
+      lbl.innerHTML = `<input type="checkbox" value="${t}">${t.split(" ")[1]||t}`;
+      tc.appendChild(lbl);
+    });
+  }
+
+  // Config Modal Logic
+  const cfgBg = document.getElementById("configBg");
+  const cfgCont = document.getElementById("cfgContainer");
+
+  function renderConfigUI(){
+    cfgCont.innerHTML = "";
+    const sections = [
+      { key:"lossCause", title:"負け主因" },
+      { key:"keptRule", title:"守れたルール" },
+      { key:"nextAction", title:"明日のアクション" },
+      { key:"coreTickers", title:"主戦銘柄 (チップ)" }
+    ];
+
+    sections.forEach(sec => {
+      const div = document.createElement("div");
+      div.className = "cfg-section";
+      
+      const tit = document.createElement("div");
+      tit.style.fontWeight = "bold"; tit.style.marginBottom = "6px";
+      tit.textContent = sec.title;
+      div.appendChild(tit);
+
+      // Add Row
+      const row = document.createElement("div");
+      row.className = "cfg-add-row";
+      const inp = document.createElement("input");
+      inp.placeholder = "項目を追加";
+      const btn = document.createElement("button");
+      btn.className = "btn-primary";
+      btn.textContent = "追加";
+      btn.onclick = () => {
+        const val = inp.value.trim();
+        if(val && !userOpts[sec.key].includes(val)){
+          userOpts[sec.key].push(val);
+          saveUserOpts();
+          renderConfigUI(); // re-render self
+        }
+      };
+      row.appendChild(inp); row.appendChild(btn);
+      div.appendChild(row);
+
+      // List
+      const list = document.createElement("div");
+      list.className = "cfg-list";
+      userOpts[sec.key].forEach(item => {
+        const chip = document.createElement("span");
+        chip.className = "chip";
+        chip.style.cursor = "default";
+        chip.innerHTML = `${item} <span class="chip-del" onclick="removeOpt('${sec.key}', '${item}')">×</span>`;
+        list.appendChild(chip);
+      });
+      div.appendChild(list);
+      cfgCont.appendChild(div);
+    });
+  }
+
+  window.removeOpt = (key, val) => {
+    if(confirm(`「${val}」を削除しますか？`)){
+      userOpts[key] = userOpts[key].filter(x => x !== val);
+      saveUserOpts();
+      renderConfigUI();
+    }
+  };
+
+  document.getElementById("btnConfig").onclick = () => {
+    renderConfigUI();
+    cfgBg.style.display = "flex";
+  };
+  document.getElementById("btnCloseConfig").onclick = () => {
+    cfgBg.style.display = "none";
+  };
+
+
+  // =========================
+  // CORE LOGIC (Preserved)
+  // =========================
+  const PASSCODE = "kyoto.3594"; 
   const UNLOCK_KEY = "tradeDiary_unlocked_v1";
   const KEY = "tradeDiary_v1";
   const GHKEY = "tradeDiary_github";
 
   const $ = (id) => document.getElementById(id);
 
-  // Lock Logic
+  // Lock
   const lockBg=$("lockBg"), lockPass=$("lockPass"), lockErr=$("lockErr");
   function isUnlocked(){ return localStorage.getItem(UNLOCK_KEY) === "1"; }
   function showLock(){ lockBg.style.display="flex"; lockPass.value=""; lockErr.style.display="none"; setTimeout(()=>lockPass.focus(),50); }
@@ -367,7 +468,7 @@
   lockPass.onkeydown=(e)=>{ if(e.key==="Enter") unlock(); };
   if(!isUnlocked()) showLock(); else hideLock();
 
-  // Core Logic
+  // Elements
   const els = {
     date:$("date"), marketType:$("marketType"), result:$("result"), pnl:$("pnl"),
     trades:$("trades"), bias:$("bias"), lossCause:$("lossCause"), keptRule:$("keptRule"),
@@ -384,17 +485,18 @@
   function saveAll(d){ localStorage.setItem(KEY,JSON.stringify(d)); }
   function fmtYen(n){ if(!Number.isFinite(n))return"-"; return (n>0?"+":"")+n.toLocaleString(); }
 
-  // Tickers
+  // Tickers Helper
   const getCore=()=>Array.from(document.querySelectorAll("#coreTickers input:checked")).map(e=>e.value);
   const setCore=(vals)=>{ const s=new Set(vals||[]); document.querySelectorAll("#coreTickers input").forEach(e=>e.checked=s.has(e.value)); };
 
-  // Form
+  // Form <-> Entry
   function formToEntry(){
     return {
       date:els.date.value||todayISO(), marketType:els.marketType.value, result:els.result.value,
       pnl:els.pnl.value===""?null:Number(els.pnl.value),
       tickers:[...getCore(), ...(els.extraTickers.value||"").split(",").map(s=>s.trim()).filter(Boolean)],
-      trades:els.trades.value, bias:els.bias.value, lossCause:els.lossCause.value,
+      trades:els.trades.value, // Now free text/number
+      bias:els.bias.value, lossCause:els.lossCause.value,
       keptRule:els.keptRule.value, grade:els.grade.value, nextAction:els.nextAction.value,
       memo:(els.memo.value||"").trim(), updatedAt:new Date().toISOString()
     };
@@ -403,13 +505,18 @@
     els.date.value=e.date||todayISO(); els.marketType.value=e.marketType||"不明"; els.result.value=e.result||"未入力";
     els.pnl.value=Number.isFinite(e.pnl)?e.pnl:"";
     const ts=e.tickers||[];
-    setCore(ts); els.extraTickers.value=ts.filter(t=>!t.match(/^(8031|9503|5020|3099|7011|6501)/)).join(",");
-    els.trades.value=e.trades||"0"; els.bias.value=e.bias||"不明"; els.lossCause.value=e.lossCause||"未入力";
+    
+    // Check if ticks exist in userOpts, if not, maybe add them? (Optional, kept simple here)
+    setCore(ts); 
+    els.extraTickers.value=ts.filter(t=> !userOpts.coreTickers.includes(t)).join(",");
+    
+    els.trades.value=e.trades||"";
+    els.bias.value=e.bias||"不明"; els.lossCause.value=e.lossCause||"未入力";
     els.keptRule.value=e.keptRule||"未入力"; els.grade.value=e.grade||"未入力"; els.nextAction.value=e.nextAction||"未入力";
     els.memo.value=e.memo||"";
   }
 
-  // Render
+  // Render Rows
   function render(){
     const all=loadAll();
     ui.countLabel.textContent=all.length; ui.todayLabel.textContent=els.date.value||todayISO();
@@ -450,6 +557,7 @@
       `;
       ui.rows.appendChild(tr);
     });
+    
     updateGhLabel();
   }
 
@@ -477,7 +585,7 @@
     a.download="diary.csv"; a.click();
   };
 
-  // GitHub (Compact Logic)
+  // GitHub Logic
   const loadGH=()=>JSON.parse(localStorage.getItem(GHKEY)||"null");
   const saveGH=(c)=>localStorage.setItem(GHKEY,JSON.stringify(c));
   const isGHReady=(c)=>c&&c.token&&c.owner&&c.repo;
@@ -506,7 +614,6 @@
     const c=loadGH(); $("ghLabel").textContent="GitHub: "+(isGHReady(c)?`${c.owner}/${c.repo}`:"未設定");
   }
 
-  // API Wrapper
   const headers=(c)=>({"Authorization":`token ${c.token}`, "Accept":"application/vnd.github+json"});
   async function ghGet(c){
     const res=await fetch(`https://api.github.com/repos/${c.owner}/${c.repo}/contents/${c.path}?ref=${c.branch}`,{headers:headers(c)});
@@ -518,8 +625,6 @@
     const body={message:"update", content:btoa(unescape(encodeURIComponent(JSON.stringify(data,null,2)))), branch:c.branch, sha};
     await fetch(`https://api.github.com/repos/${c.owner}/${c.repo}/contents/${c.path}`,{method:"PUT",headers:headers(c),body:JSON.stringify(body)});
   }
-
-  // Merge Logic
   function merge(loc,rem){
     const m=new Map(); [...loc,...rem].forEach(e=>{
       const old=m.get(e.date);
@@ -527,7 +632,6 @@
     });
     return Array.from(m.values()).sort((a,b)=>a.date.localeCompare(b.date));
   }
-
   async function backupGH(){
     const c=loadGH(); if(!isGHReady(c))return;
     const r=await ghGet(c), l=loadAll();
@@ -545,7 +649,8 @@
   $("btnRestore").onclick=async()=>{ try{await restoreGH();alert("完了");}catch(e){alert("失敗:"+e);} };
   $("btnTest").onclick=async()=>{ try{await ghGet(loadGH());alert("接続OK");}catch(e){alert("失敗:"+e);} };
 
-  // Init
+  // Initialize
+  renderSelects();
   els.date.value=todayISO();
   render();
 </script>

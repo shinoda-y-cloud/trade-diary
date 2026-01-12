@@ -3,12 +3,13 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>トレード日記 (Pro)</title>
+  <title>トレード日記 (Pro Max)</title>
   <style>
     :root{
       --bg:#0b1020; --card:#111a33; --text:#e9eefc; --muted:#9fb0dd;
       --border:rgba(255,255,255,0.12);
       --accent:#67d3ff; --good:#49e3a2; --bad:#ff6b6b; --warn:#ffd166;
+      --long:#4facfe; --short:#ff5858; --mix:#a18cd1;
     }
     *{box-sizing:border-box}
     body{
@@ -16,12 +17,12 @@
       background:radial-gradient(1200px 700px at 20% -10%, #17306b 0%, transparent 55%),
                  radial-gradient(900px 600px at 110% 20%, #2b145b 0%, transparent 55%),
                  var(--bg);
-      color:var(--text); padding-bottom:60px;
+      color:var(--text); padding-bottom:80px;
     }
     
     .container { max-width:1000px; margin:0 auto; padding:0 16px; }
     header { padding:20px 0 10px; display:flex; justify-content:space-between; align-items:end; flex-wrap:wrap; gap:10px; }
-    h1 { font-size:18px; margin:0; }
+    h1 { font-size:18px; margin:0; font-weight:800; letter-spacing:1px; }
     .header-btns { display:flex; gap:8px; flex-wrap:wrap; }
 
     /* Card Design */
@@ -40,14 +41,11 @@
     }
     .card-bd { padding:14px; }
 
-    /* Grid Layouts */
-    .form-grid {
-      display:grid; grid-template-columns: 1fr; gap:12px 12px;
-    }
+    /* Forms */
+    .form-grid { display:grid; grid-template-columns: 1fr; gap:12px; }
     @media (min-width: 600px) { .form-grid { grid-template-columns: repeat(2, 1fr); } }
     @media (min-width: 900px) { .form-grid { grid-template-columns: repeat(4, 1fr); } }
 
-    /* Form Elements */
     label { display:block; font-size:11px; color:var(--muted); margin-bottom:4px; }
     select, input, textarea {
       width:100%; background:rgba(0,0,0,0.3); border:1px solid var(--border);
@@ -56,7 +54,6 @@
     select:focus, input:focus { border-color:var(--accent); background:rgba(0,0,0,0.5); }
     textarea { min-height:38px; height:38px; resize:vertical; }
 
-    /* Layout Helpers */
     .col-full { grid-column: 1 / -1; }
     .col-half { grid-column: span 1; }
     @media (min-width: 600px) { .col-half { grid-column: span 2; } }
@@ -70,15 +67,13 @@
     .btn-primary:hover { opacity:0.9; }
     .btn-sec { background:transparent; border:1px solid var(--border); color:var(--muted); }
     .btn-sec:hover { border-color:var(--text); color:var(--text); }
-    .btn-danger { background:rgba(255,107,107,0.2); color:var(--bad); border:1px solid var(--bad); }
+    .btn-danger { background:rgba(255,107,107,0.15); color:var(--bad); border:1px solid rgba(255,107,107,0.3); }
     .btn-danger:hover { background:var(--bad); color:#fff; }
     
-    /* Toggle Switch Style */
     .toggle-group { display:flex; background:rgba(0,0,0,0.3); border-radius:8px; padding:2px; border:1px solid var(--border); }
     .toggle-btn { flex:1; text-align:center; padding:6px 12px; font-size:12px; border-radius:6px; cursor:pointer; color:var(--muted); }
     .toggle-btn.active { background:var(--accent); color:#0b1020; font-weight:bold; }
 
-    /* Chips */
     .chip-group { display:flex; flex-wrap:wrap; gap:6px; }
     .chip {
       display:flex; align-items:center; gap:4px; padding:4px 8px;
@@ -86,44 +81,81 @@
       font-size:11px; cursor:pointer; user-select:none;
     }
     .chip:hover { background:rgba(255,255,255,0.1); }
-    .chip input { width:auto; margin:0; }
-    .chip-del { margin-left:6px; color:var(--bad); cursor:pointer; font-weight:bold; }
+    .chip-del { margin-left:6px; color:var(--bad); font-weight:bold; }
 
-    /* Dashboard */
+    /* KPI */
     .kpi-row { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:15px; }
     .kpi-box { background:rgba(0,0,0,0.2); border-radius:8px; padding:8px; text-align:center; border:1px solid var(--border); }
     .kpi-label { font-size:10px; color:var(--muted); }
     .kpi-val { font-size:16px; font-weight:bold; color:var(--text); }
     .v-good { color:var(--good); } .v-bad { color:var(--bad); }
 
-    /* === TIMELINE VIEW (New) === */
+    /* === TIMELINE VIEW (Updated) === */
     .timeline { display:flex; flex-direction:column; gap:16px; }
     .t-card {
       background:rgba(17,26,51,0.6); border:1px solid var(--border);
-      border-radius:12px; padding:16px; position:relative;
+      border-radius:12px; padding:16px; position:relative; overflow:hidden;
     }
-    .t-head { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; }
-    .t-date { font-size:14px; font-weight:bold; display:flex; align-items:center; gap:10px; }
-    .t-pnl { font-size:15px; font-weight:800; }
-    .t-meta { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px; font-size:11px; color:var(--muted); }
-    .t-pill { padding:2px 8px; border-radius:4px; background:rgba(255,255,255,0.05); border:1px solid var(--border); }
+    /* Header grid: [Date/Tags] [Space] [Buttons] */
+    .t-top { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:10px; gap:10px; }
+    .t-date-grp { display:flex; flex-direction:column; gap:4px; }
+    .t-date { font-size:14px; font-weight:bold; color:var(--text); display:flex; align-items:center; gap:8px;}
+    .t-actions { display:flex; gap:6px; }
     
+    /* PnL Row */
+    .t-pnl-row { display:flex; align-items:baseline; gap:12px; margin-bottom:12px; padding-bottom:12px; border-bottom:1px solid rgba(255,255,255,0.05); }
+    .t-pnl { font-size:20px; font-weight:800; letter-spacing:0.5px; }
+
+    /* Tags & Badges */
+    .t-meta { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px; }
+    .badge {
+      font-size:10px; padding:3px 8px; border-radius:4px; 
+      border:1px solid var(--border); color:var(--muted); font-weight:600;
+      display:inline-flex; align-items:center; gap:4px;
+    }
+    /* Direction Colors */
+    .badge.long { border-color:rgba(79,172,254,0.4); color:var(--long); background:rgba(79,172,254,0.1); }
+    .badge.short { border-color:rgba(255,88,88,0.4); color:var(--short); background:rgba(255,88,88,0.1); }
+    .badge.mix { border-color:rgba(161,140,209,0.4); color:var(--mix); background:rgba(161,140,209,0.1); }
+    
+    /* Count Colors */
+    .badge.cnt-ok { border-color:rgba(73,227,162,0.4); color:var(--good); }
+    .badge.cnt-warn { border-color:rgba(255,209,102,0.4); color:var(--warn); }
+    .badge.cnt-bad { border-color:rgba(255,107,107,0.4); color:var(--bad); }
+
+    /* Rank Colors */
+    .badge.rank-a { border-color:var(--good); color:#0b1020; background:var(--good); }
+    .badge.rank-b { border-color:var(--muted); color:var(--text); }
+    .badge.rank-c { border-color:var(--bad); color:var(--bad); }
+    
+    /* THE GOLDEN S RANK */
+    .badge.rank-s {
+      border:1px solid #ffd700;
+      background: linear-gradient(135deg, #ffd700 0%, #fdb931 50%, #ffd700 100%);
+      color: #5c4d00;
+      box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+      text-shadow: 0 1px 0 rgba(255,255,255,0.4);
+      animation: shine 3s infinite linear;
+      font-weight:800; padding:3px 10px;
+    }
+    @keyframes shine {
+      0% { background-position: 0% 50%; box-shadow: 0 0 5px rgba(255,215,0,0.3); }
+      50% { background-position: 100% 50%; box-shadow: 0 0 15px rgba(255,215,0,0.7); }
+      100% { background-position: 0% 50%; box-shadow: 0 0 5px rgba(255,215,0,0.3); }
+    }
+
     .t-body { 
-      background:rgba(0,0,0,0.2); border-radius:8px; padding:12px; 
-      margin-bottom:12px; font-size:13px; line-height:1.6; color:#fff;
-      white-space: pre-wrap; /* 改行を反映 */
+      background:rgba(0,0,0,0.25); border-radius:8px; padding:12px; 
+      margin-bottom:12px; font-size:13px; line-height:1.6; color:#fff; white-space: pre-wrap;
     }
     .t-foot { 
       display:grid; grid-template-columns: 1fr; gap:8px; 
-      font-size:12px; color:var(--muted); padding-top:8px; border-top:1px solid var(--border); 
+      font-size:11px; color:var(--muted); 
     }
     @media (min-width: 600px) { .t-foot { grid-template-columns: 1fr 1fr 1fr; } }
-    
-    .t-item strong { display:block; color:var(--accent); font-size:10px; margin-bottom:2px; }
-    .t-actions { position:absolute; top:16px; right:16px; display:flex; gap:6px; opacity:0.5; transition:0.2s; }
-    .t-card:hover .t-actions { opacity:1; }
+    .t-item strong { display:block; color:var(--accent); font-size:10px; margin-bottom:2px; opacity:0.8; }
 
-    /* === TABLE VIEW === */
+    /* Table View */
     .tbl-wrap { overflow-x:auto; }
     .tbl { width:100%; border-collapse:collapse; font-size:12px; white-space:nowrap; }
     .tbl th { text-align:left; color:var(--muted); padding:6px; border-bottom:1px solid var(--border); }
@@ -150,12 +182,12 @@
 <div class="container">
   <header>
     <div>
-      <h1>トレード日記 (Pro)</h1>
+      <h1>トレード日記 Pro Max</h1>
       <div class="mini-text" id="ghLabel">GitHub: 未設定</div>
     </div>
     <div class="header-btns">
-      <button class="btn-sec" id="btnConfig">⚙️ 選択肢の編集</button>
-      <button class="btn-sec" id="btnGitHub">GitHub設定</button>
+      <button class="btn-sec" id="btnConfig">⚙️ 選択肢</button>
+      <button class="btn-sec" id="btnGitHub">GitHub</button>
       <button class="btn-sec" id="btnBackup">バックアップ</button>
       <button class="btn-sec" id="btnRestore">復元</button>
       <button class="btn-sec" id="btnRelock">ロック</button>
@@ -238,13 +270,13 @@
       </div>
 
       <div class="col-half">
-        <label>主戦銘柄 (選択 + 自由入力)</label>
+        <label>主戦銘柄</label>
         <div class="chip-group" id="coreTickers"></div>
         <input type="text" id="extraTickers" placeholder="その他 (例: 9101 商船三井)" style="margin-top:6px;" />
       </div>
 
       <div class="col-full">
-        <label>一言メモ (日記の本体)</label>
+        <label>一言メモ (日記)</label>
         <textarea id="memo" placeholder="ここに反省や感情を詳しく書く..."></textarea>
       </div>
       
@@ -486,7 +518,7 @@
     let top="-", max=0; for(let k in counts)if(counts[k]>max){max=counts[k];top=k;}
     $("kpiTopCause").textContent=top;
 
-    // Render List (Card or Table)
+    // Render List
     const sorted = all.slice().reverse();
     
     if(viewMode === "table"){
@@ -508,27 +540,48 @@
       ui.cardView.innerHTML = "";
       sorted.forEach(e=>{
         const div = document.createElement("div"); div.className="t-card";
-        const tag = e.result==="勝ち"?"win":(e.result==="負け"?"lose":"");
+        const resTag = e.result==="勝ち"?"win":(e.result==="負け"?"lose":"");
         const pnlC = e.pnl>0?"v-good":(e.pnl<0?"v-bad":"");
         
-        // Short labels
-        const metas = [];
-        if(e.tickers.length) metas.push(e.tickers.map(t=>t.split(" ")[1]||t).join("/"));
-        if(e.bias!=="不明") metas.push("方向:"+e.bias);
-        if(e.trades) metas.push(e.trades+"回");
+        // Colors & Classes Logic
+        let biasCls = ""; 
+        if(e.bias.includes("ロング")) biasCls="long";
+        else if(e.bias.includes("ショート")) biasCls="short";
+        else if(e.bias.includes("両方")) biasCls="mix";
+        
+        let cntCls = "cnt-ok";
+        const tNum = Number(e.trades);
+        if(tNum >= 3) cntCls="cnt-warn";
+        if(tNum >= 6) cntCls="cnt-bad";
+
+        let rankCls = "";
+        if(e.grade==="S") rankCls="rank-s";
+        else if(e.grade==="A") rankCls="rank-a";
+        else if(e.grade==="B") rankCls="rank-b";
+        else if(e.grade==="C") rankCls="rank-c";
+        
+        // Meta Pills
+        let pills = [];
+        if(e.tickers.length) pills.push(`<span class="badge">${e.tickers.map(t=>t.split(" ")[1]||t).join("/")}</span>`);
+        if(e.bias!=="不明" && e.bias!=="未入力") pills.push(`<span class="badge ${biasCls}">${e.bias}</span>`);
+        if(e.trades) pills.push(`<span class="badge ${cntCls}">${e.trades}回</span>`);
+        if(e.grade!=="未入力") pills.push(`<span class="badge ${rankCls}">評価:${e.grade}</span>`);
 
         div.innerHTML = `
-          <div class="t-actions">
-            <button class="btn-sec" onclick="loadEntry('${e.date}')">編集</button>
-            <button class="btn-danger" onclick="delEntry('${e.date}')">削除</button>
+          <div class="t-top">
+            <div class="t-date-grp">
+              <div class="t-date">${e.date} <span class="tag ${resTag}">${e.result}</span></div>
+            </div>
+            <div class="t-actions">
+              <button class="btn-sec" style="font-size:10px; padding:4px 8px;" onclick="loadEntry('${e.date}')">編集</button>
+              <button class="btn-danger" style="font-size:10px; padding:4px 8px;" onclick="delEntry('${e.date}')">削除</button>
+            </div>
           </div>
-          <div class="t-head">
-            <div class="t-date">${e.date} <span class="tag ${tag}" style="font-size:12px;">${e.result}</span></div>
-            <div class="t-pnl ${pnlC}">${fmtYen(e.pnl)}</div>
+          <div class="t-pnl-row">
+            <span class="t-pnl ${pnlC}">${fmtYen(e.pnl)}</span>
           </div>
           <div class="t-meta">
-            ${metas.map(m=>`<span class="t-pill">${m}</span>`).join("")}
-            <span class="t-pill" style="border-color:var(--muted)">評価:${e.grade}</span>
+            ${pills.join("")}
           </div>
           <div class="t-body">${(e.memo||"").replace(/\n/g, "<br>")}</div>
           <div class="t-foot">

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>トレード日記（Pro版）</title>
+  <title>トレード日記 (Pro)</title>
   <style>
     :root{
       --bg:#0b1020; --card:#111a33; --text:#e9eefc; --muted:#9fb0dd;
@@ -16,7 +16,7 @@
       background:radial-gradient(1200px 700px at 20% -10%, #17306b 0%, transparent 55%),
                  radial-gradient(900px 600px at 110% 20%, #2b145b 0%, transparent 55%),
                  var(--bg);
-      color:var(--text); padding-bottom:40px;
+      color:var(--text); padding-bottom:60px;
     }
     
     .container { max-width:1000px; margin:0 auto; padding:0 16px; }
@@ -72,7 +72,11 @@
     .btn-sec:hover { border-color:var(--text); color:var(--text); }
     .btn-danger { background:rgba(255,107,107,0.2); color:var(--bad); border:1px solid var(--bad); }
     .btn-danger:hover { background:var(--bad); color:#fff; }
-    .btn-icon { padding:6px 10px; }
+    
+    /* Toggle Switch Style */
+    .toggle-group { display:flex; background:rgba(0,0,0,0.3); border-radius:8px; padding:2px; border:1px solid var(--border); }
+    .toggle-btn { flex:1; text-align:center; padding:6px 12px; font-size:12px; border-radius:6px; cursor:pointer; color:var(--muted); }
+    .toggle-btn.active { background:var(--accent); color:#0b1020; font-weight:bold; }
 
     /* Chips */
     .chip-group { display:flex; flex-wrap:wrap; gap:6px; }
@@ -85,13 +89,41 @@
     .chip input { width:auto; margin:0; }
     .chip-del { margin-left:6px; color:var(--bad); cursor:pointer; font-weight:bold; }
 
-    /* Dashboard & Table */
+    /* Dashboard */
     .kpi-row { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:15px; }
     .kpi-box { background:rgba(0,0,0,0.2); border-radius:8px; padding:8px; text-align:center; border:1px solid var(--border); }
     .kpi-label { font-size:10px; color:var(--muted); }
     .kpi-val { font-size:16px; font-weight:bold; color:var(--text); }
     .v-good { color:var(--good); } .v-bad { color:var(--bad); }
 
+    /* === TIMELINE VIEW (New) === */
+    .timeline { display:flex; flex-direction:column; gap:16px; }
+    .t-card {
+      background:rgba(17,26,51,0.6); border:1px solid var(--border);
+      border-radius:12px; padding:16px; position:relative;
+    }
+    .t-head { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; }
+    .t-date { font-size:14px; font-weight:bold; display:flex; align-items:center; gap:10px; }
+    .t-pnl { font-size:15px; font-weight:800; }
+    .t-meta { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:12px; font-size:11px; color:var(--muted); }
+    .t-pill { padding:2px 8px; border-radius:4px; background:rgba(255,255,255,0.05); border:1px solid var(--border); }
+    
+    .t-body { 
+      background:rgba(0,0,0,0.2); border-radius:8px; padding:12px; 
+      margin-bottom:12px; font-size:13px; line-height:1.6; color:#fff;
+      white-space: pre-wrap; /* 改行を反映 */
+    }
+    .t-foot { 
+      display:grid; grid-template-columns: 1fr; gap:8px; 
+      font-size:12px; color:var(--muted); padding-top:8px; border-top:1px solid var(--border); 
+    }
+    @media (min-width: 600px) { .t-foot { grid-template-columns: 1fr 1fr 1fr; } }
+    
+    .t-item strong { display:block; color:var(--accent); font-size:10px; margin-bottom:2px; }
+    .t-actions { position:absolute; top:16px; right:16px; display:flex; gap:6px; opacity:0.5; transition:0.2s; }
+    .t-card:hover .t-actions { opacity:1; }
+
+    /* === TABLE VIEW === */
     .tbl-wrap { overflow-x:auto; }
     .tbl { width:100%; border-collapse:collapse; font-size:12px; white-space:nowrap; }
     .tbl th { text-align:left; color:var(--muted); padding:6px; border-bottom:1px solid var(--border); }
@@ -100,15 +132,13 @@
     .tag.win { border-color:var(--good); color:var(--good); }
     .tag.lose { border-color:var(--bad); color:var(--bad); }
 
+    /* Modals & Utils */
     .flex-center { display:flex; align-items:center; gap:8px; }
     .text-right { text-align:right; }
     .mini-text { font-size:10px; color:var(--muted); margin-top:4px; }
-
-    /* Modals */
     .overlay { position:fixed; inset:0; background:rgba(0,0,0,0.6); display:none; justify-content:center; align-items:center; z-index:99; padding:10px;}
     .modal-box { width:min(600px, 100%); background:#0f1730; border:1px solid var(--border); border-radius:12px; padding:20px; box-shadow:0 20px 50px #000; max-height:90vh; overflow-y:auto;}
     
-    /* Config Modal Specifics */
     .cfg-section { margin-bottom:20px; border-bottom:1px solid var(--border); padding-bottom:12px; }
     .cfg-list { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
     .cfg-add-row { display:flex; gap:8px; margin-top:8px; }
@@ -214,8 +244,8 @@
       </div>
 
       <div class="col-full">
-        <label>一言メモ</label>
-        <input type="text" id="memo" maxlength="100" placeholder="例: 方向感なし。-4000円で撤退。" />
+        <label>一言メモ (日記の本体)</label>
+        <textarea id="memo" placeholder="ここに反省や感情を詳しく書く..."></textarea>
       </div>
       
       <div class="col-full" style="display:flex; gap:10px; margin-top:4px;">
@@ -251,7 +281,19 @@
         </div>
       </div>
 
-      <div class="tbl-wrap">
+      <hr style="border:0; border-top:1px solid var(--border); margin:20px 0;">
+
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <span style="font-size:12px; color:var(--muted); font-weight:bold;">過去の記録</span>
+        <div class="toggle-group">
+          <div class="toggle-btn active" id="viewCard">📰 タイムライン</div>
+          <div class="toggle-btn" id="viewTable">📑 リスト</div>
+        </div>
+      </div>
+
+      <div id="viewContainerCard" class="timeline"></div>
+
+      <div id="viewContainerTable" class="tbl-wrap" style="display:none;">
         <table class="tbl">
           <thead>
             <tr>
@@ -259,12 +301,13 @@
               <th style="width:50px;">結果</th>
               <th style="width:70px; text-align:right;">損益</th>
               <th style="padding-left:12px;">要約</th>
-              <th style="width:80px; text-align:right;">操作</th>
+              <th style="width:60px; text-align:right;">操作</th>
             </tr>
           </thead>
           <tbody id="rows"></tbody>
         </table>
       </div>
+
     </div>
   </section>
 </div>
@@ -284,9 +327,7 @@
       <h3 style="margin:0;">選択肢の編集</h3>
       <button class="btn-sec" id="btnCloseConfig" style="padding:2px 8px;">閉じる</button>
     </div>
-    
-    <div id="cfgContainer">
-      </div>
+    <div id="cfgContainer"></div>
     <div class="mini-text">※ 変更は自動保存されます。</div>
   </div>
 </div>
@@ -328,175 +369,87 @@
   // MASTER DATA & CONFIG
   // =========================
   const OPT_KEY = "tradeDiary_options";
-  
   const DEFAULTS = {
     lossCause: ["逆張り癖", "地合い悪", "ブレイクダマシ", "利確が早い", "損切りが遅い", "エントリーが早い", "ロットが重い", "集中できない"],
     keptRule: ["損切りを徹底", "ロット抑制", "迷ったら見送り", "1銘柄集中", "エントリー待てた", "後場エントリーしない"],
     nextAction: ["地合いを見て目線を切り替える", "寄り15分は触らない", "VWAP付近は見送り", "ブレイクは2本確定後", "1日1銘柄に絞る", "ノートレも正解とする"],
     coreTickers: ["8031 三井物産", "9503 関西電力", "5020 ENEOS", "3099 三越伊勢丹", "7011 三菱重工", "6501 日立"]
   };
+  let userOpts = JSON.parse(localStorage.getItem(OPT_KEY)||"null") || JSON.parse(JSON.stringify(DEFAULTS));
 
-  let userOpts = JSON.parse(localStorage.getItem(OPT_KEY) || "null") || JSON.parse(JSON.stringify(DEFAULTS));
-
-  function saveUserOpts(){
-    localStorage.setItem(OPT_KEY, JSON.stringify(userOpts));
-    renderSelects();
-  }
-
-  // Render Select Options
+  function saveUserOpts(){ localStorage.setItem(OPT_KEY, JSON.stringify(userOpts)); renderSelects(); }
   function renderSelects(){
     const fill = (id, list) => {
       const el = document.getElementById(id);
       if(!el) return;
       el.innerHTML = '<option value="未入力">未入力</option>';
-      list.forEach(v => {
-        const op = document.createElement("option");
-        op.value = v; op.textContent = v;
-        el.appendChild(op);
-      });
+      list.forEach(v => { const op=document.createElement("option"); op.value=v; op.textContent=v; el.appendChild(op); });
     };
-    
-    fill("lossCause", userOpts.lossCause);
-    fill("keptRule", userOpts.keptRule);
-    fill("nextAction", userOpts.nextAction);
-
-    // Ticker Chips
-    const tc = document.getElementById("coreTickers");
-    tc.innerHTML = "";
+    fill("lossCause", userOpts.lossCause); fill("keptRule", userOpts.keptRule); fill("nextAction", userOpts.nextAction);
+    const tc = document.getElementById("coreTickers"); tc.innerHTML = "";
     userOpts.coreTickers.forEach(t => {
-      const lbl = document.createElement("label");
-      lbl.className = "chip";
-      lbl.innerHTML = `<input type="checkbox" value="${t}">${t.split(" ")[1]||t}`;
-      tc.appendChild(lbl);
+      const lbl = document.createElement("label"); lbl.className = "chip";
+      lbl.innerHTML = `<input type="checkbox" value="${t}">${t.split(" ")[1]||t}`; tc.appendChild(lbl);
     });
   }
 
-  // Config Modal Logic
-  const cfgBg = document.getElementById("configBg");
-  const cfgCont = document.getElementById("cfgContainer");
-
+  // Config UI
+  const cfgBg=$("configBg"), cfgCont=$("cfgContainer");
   function renderConfigUI(){
     cfgCont.innerHTML = "";
-    const sections = [
-      { key:"lossCause", title:"負け主因" },
-      { key:"keptRule", title:"守れたルール" },
-      { key:"nextAction", title:"明日のアクション" },
-      { key:"coreTickers", title:"主戦銘柄 (チップ)" }
-    ];
-
-    sections.forEach(sec => {
-      const div = document.createElement("div");
-      div.className = "cfg-section";
-      
-      const tit = document.createElement("div");
-      tit.style.fontWeight = "bold"; tit.style.marginBottom = "6px";
-      tit.textContent = sec.title;
-      div.appendChild(tit);
-
-      // Add Row
-      const row = document.createElement("div");
-      row.className = "cfg-add-row";
-      const inp = document.createElement("input");
-      inp.placeholder = "項目を追加";
-      const btn = document.createElement("button");
-      btn.className = "btn-primary";
-      btn.textContent = "追加";
-      btn.onclick = () => {
-        const val = inp.value.trim();
-        if(val && !userOpts[sec.key].includes(val)){
-          userOpts[sec.key].push(val);
-          saveUserOpts();
-          renderConfigUI(); // re-render self
-        }
-      };
-      row.appendChild(inp); row.appendChild(btn);
-      div.appendChild(row);
-
-      // List
-      const list = document.createElement("div");
-      list.className = "cfg-list";
-      userOpts[sec.key].forEach(item => {
-        const chip = document.createElement("span");
-        chip.className = "chip";
-        chip.style.cursor = "default";
-        chip.innerHTML = `${item} <span class="chip-del" onclick="removeOpt('${sec.key}', '${item}')">×</span>`;
-        list.appendChild(chip);
+    [{k:"lossCause",t:"負け主因"},{k:"keptRule",t:"守れたルール"},{k:"nextAction",t:"明日のアクション"},{k:"coreTickers",t:"主戦銘柄"}].forEach(sec => {
+      const div=document.createElement("div"); div.className="cfg-section";
+      const tit=document.createElement("div"); tit.style.fontWeight="bold"; tit.style.marginBottom="6px"; tit.textContent=sec.t; div.appendChild(tit);
+      const row=document.createElement("div"); row.className="cfg-add-row";
+      const inp=document.createElement("input"); inp.placeholder="追加...";
+      const btn=document.createElement("button"); btn.className="btn-primary"; btn.textContent="追加";
+      btn.onclick=()=>{ const v=inp.value.trim(); if(v&&!userOpts[sec.k].includes(v)){ userOpts[sec.k].push(v); saveUserOpts(); renderConfigUI(); }};
+      row.appendChild(inp); row.appendChild(btn); div.appendChild(row);
+      const list=document.createElement("div"); list.className="cfg-list";
+      userOpts[sec.k].forEach(item => {
+        const chip=document.createElement("span"); chip.className="chip";
+        chip.innerHTML=`${item} <span class="chip-del" onclick="removeOpt('${sec.k}','${item}')">×</span>`; list.appendChild(chip);
       });
-      div.appendChild(list);
-      cfgCont.appendChild(div);
+      div.appendChild(list); cfgCont.appendChild(div);
     });
   }
-
-  window.removeOpt = (key, val) => {
-    if(confirm(`「${val}」を削除しますか？`)){
-      userOpts[key] = userOpts[key].filter(x => x !== val);
-      saveUserOpts();
-      renderConfigUI();
-    }
-  };
-
-  document.getElementById("btnConfig").onclick = () => {
-    renderConfigUI();
-    cfgBg.style.display = "flex";
-  };
-  document.getElementById("btnCloseConfig").onclick = () => {
-    cfgBg.style.display = "none";
-  };
-
+  window.removeOpt=(k,v)=>{ if(confirm(`「${v}」を削除しますか？`)){ userOpts[k]=userOpts[k].filter(x=>x!==v); saveUserOpts(); renderConfigUI(); }};
+  $("btnConfig").onclick=()=>{ renderConfigUI(); cfgBg.style.display="flex"; };
+  $("btnCloseConfig").onclick=()=>{ cfgBg.style.display="none"; };
 
   // =========================
-  // CORE LOGIC (Preserved)
+  // CORE LOGIC
   // =========================
-  const PASSCODE = "kyoto.3594"; 
-  const UNLOCK_KEY = "tradeDiary_unlocked_v1";
-  const KEY = "tradeDiary_v1";
-  const GHKEY = "tradeDiary_github";
-
-  const $ = (id) => document.getElementById(id);
+  const PASSCODE = "kyoto.3594"; const UNLOCK_KEY = "tradeDiary_unlocked_v1";
+  const KEY = "tradeDiary_v1"; const GHKEY = "tradeDiary_github";
+  function $(id){return document.getElementById(id);}
 
   // Lock
-  const lockBg=$("lockBg"), lockPass=$("lockPass"), lockErr=$("lockErr");
-  function isUnlocked(){ return localStorage.getItem(UNLOCK_KEY) === "1"; }
-  function showLock(){ lockBg.style.display="flex"; lockPass.value=""; lockErr.style.display="none"; setTimeout(()=>lockPass.focus(),50); }
-  function hideLock(){ lockBg.style.display="none"; }
-  function unlock(){
-    if(lockPass.value.trim()===PASSCODE){ localStorage.setItem(UNLOCK_KEY,"1"); hideLock(); }
-    else{ lockErr.style.display="block"; }
-  }
-  $("btnUnlock").onclick=unlock;
-  $("btnRelock").onclick=()=>{ localStorage.removeItem(UNLOCK_KEY); showLock(); };
-  lockPass.onkeydown=(e)=>{ if(e.key==="Enter") unlock(); };
-  if(!isUnlocked()) showLock(); else hideLock();
+  const lockBg=$("lockBg"), lockPass=$("lockPass");
+  function isUnlocked(){ return localStorage.getItem(UNLOCK_KEY)==="1"; }
+  function showLock(){ lockBg.style.display="flex"; lockPass.value=""; setTimeout(()=>lockPass.focus(),50); }
+  function unlock(){ if(lockPass.value.trim()===PASSCODE){ localStorage.setItem(UNLOCK_KEY,"1"); lockBg.style.display="none"; } else $("lockErr").style.display="block"; }
+  $("btnUnlock").onclick=unlock; $("btnRelock").onclick=()=>{ localStorage.removeItem(UNLOCK_KEY); showLock(); };
+  lockPass.onkeydown=(e)=>{if(e.key==="Enter")unlock();};
+  if(!isUnlocked()) showLock(); else lockBg.style.display="none";
 
   // Elements
-  const els = {
-    date:$("date"), marketType:$("marketType"), result:$("result"), pnl:$("pnl"),
-    trades:$("trades"), bias:$("bias"), lossCause:$("lossCause"), keptRule:$("keptRule"),
-    grade:$("grade"), nextAction:$("nextAction"), memo:$("memo"), extraTickers:$("extraTickers")
-  };
-  const ui = {
-    todayLabel:$("todayLabel"), countLabel:$("countLabel"), rows:$("rows"),
-    kpiMonthPnl:$("kpiMonthPnl"), kpiWinRate:$("kpiWinRate"), kpiNoTrade:$("kpiNoTrade"), kpiTopCause:$("kpiTopCause")
-  };
-
-  const todayISO=()=>{ const d=new Date(); return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10); };
+  const els={ date:$("date"), marketType:$("marketType"), result:$("result"), pnl:$("pnl"), trades:$("trades"), bias:$("bias"), lossCause:$("lossCause"), keptRule:$("keptRule"), grade:$("grade"), nextAction:$("nextAction"), memo:$("memo"), extraTickers:$("extraTickers") };
+  const ui={ todayLabel:$("todayLabel"), countLabel:$("countLabel"), rows:$("rows"), cardView:$("viewContainerCard") };
   
+  const todayISO=()=>{ const d=new Date(); return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10); };
   function loadAll(){ try{return JSON.parse(localStorage.getItem(KEY)||"[]");}catch{return[];} }
   function saveAll(d){ localStorage.setItem(KEY,JSON.stringify(d)); }
   function fmtYen(n){ if(!Number.isFinite(n))return"-"; return (n>0?"+":"")+n.toLocaleString(); }
-
-  // Tickers Helper
   const getCore=()=>Array.from(document.querySelectorAll("#coreTickers input:checked")).map(e=>e.value);
   const setCore=(vals)=>{ const s=new Set(vals||[]); document.querySelectorAll("#coreTickers input").forEach(e=>e.checked=s.has(e.value)); };
 
-  // Form <-> Entry
   function formToEntry(){
     return {
       date:els.date.value||todayISO(), marketType:els.marketType.value, result:els.result.value,
       pnl:els.pnl.value===""?null:Number(els.pnl.value),
       tickers:[...getCore(), ...(els.extraTickers.value||"").split(",").map(s=>s.trim()).filter(Boolean)],
-      trades:els.trades.value, // Now free text/number
-      bias:els.bias.value, lossCause:els.lossCause.value,
+      trades:els.trades.value, bias:els.bias.value, lossCause:els.lossCause.value,
       keptRule:els.keptRule.value, grade:els.grade.value, nextAction:els.nextAction.value,
       memo:(els.memo.value||"").trim(), updatedAt:new Date().toISOString()
     };
@@ -504,19 +457,18 @@
   function entryToForm(e){
     els.date.value=e.date||todayISO(); els.marketType.value=e.marketType||"不明"; els.result.value=e.result||"未入力";
     els.pnl.value=Number.isFinite(e.pnl)?e.pnl:"";
-    const ts=e.tickers||[];
-    
-    // Check if ticks exist in userOpts, if not, maybe add them? (Optional, kept simple here)
-    setCore(ts); 
-    els.extraTickers.value=ts.filter(t=> !userOpts.coreTickers.includes(t)).join(",");
-    
-    els.trades.value=e.trades||"";
-    els.bias.value=e.bias||"不明"; els.lossCause.value=e.lossCause||"未入力";
+    const ts=e.tickers||[]; setCore(ts); 
+    els.extraTickers.value=ts.filter(t=>!userOpts.coreTickers.includes(t)).join(",");
+    els.trades.value=e.trades||""; els.bias.value=e.bias||"不明"; els.lossCause.value=e.lossCause||"未入力";
     els.keptRule.value=e.keptRule||"未入力"; els.grade.value=e.grade||"未入力"; els.nextAction.value=e.nextAction||"未入力";
     els.memo.value=e.memo||"";
   }
 
-  // Render Rows
+  // View Switcher
+  let viewMode = "card"; // 'card' or 'table'
+  $("viewCard").onclick = () => { viewMode="card"; render(); $("viewCard").className="toggle-btn active"; $("viewTable").className="toggle-btn"; $("viewContainerCard").style.display="flex"; $("viewContainerTable").style.display="none"; };
+  $("viewTable").onclick = () => { viewMode="table"; render(); $("viewTable").className="toggle-btn active"; $("viewCard").className="toggle-btn"; $("viewContainerCard").style.display="none"; $("viewContainerTable").style.display="block"; };
+
   function render(){
     const all=loadAll();
     ui.countLabel.textContent=all.length; ui.todayLabel.textContent=els.date.value||todayISO();
@@ -525,134 +477,105 @@
     const ym=new Date().toISOString().slice(0,7);
     const m=all.filter(x=>(x.date||"").startsWith(ym));
     const pnl=m.reduce((a,x)=>a+(x.pnl||0),0);
-    ui.kpiMonthPnl.textContent=fmtYen(pnl);
-    ui.kpiMonthPnl.className="kpi-val "+(pnl>0?"v-good":(pnl<0?"v-bad":""));
-    
+    $("kpiMonthPnl").textContent=fmtYen(pnl); $("kpiMonthPnl").className="kpi-val "+(pnl>0?"v-good":(pnl<0?"v-bad":""));
     const w=m.filter(x=>x.result==="勝ち").length, l=m.filter(x=>x.result==="負け").length;
-    ui.kpiWinRate.textContent=(w+l)>0?Math.round(w/(w+l)*100)+"%":"-";
+    $("kpiWinRate").textContent=(w+l)>0?Math.round(w/(w+l)*100)+"%":"-";
     const nt=m.filter(x=>x.result==="ノートレ").length;
-    ui.kpiNoTrade.textContent=m.length>0?Math.round(nt/m.length*100)+"%":"-";
-
+    $("kpiNoTrade").textContent=m.length>0?Math.round(nt/m.length*100)+"%":"-";
     const counts={}; m.forEach(x=>{ if(x.lossCause&&x.lossCause!=="未入力") counts[x.lossCause]=(counts[x.lossCause]||0)+1; });
     let top="-", max=0; for(let k in counts)if(counts[k]>max){max=counts[k];top=k;}
-    ui.kpiTopCause.textContent=top;
+    $("kpiTopCause").textContent=top;
 
-    // Table
-    ui.rows.innerHTML="";
-    all.slice().reverse().forEach(e=>{
-      const tr=document.createElement("tr");
-      const tag=e.result==="勝ち"?"win":(e.result==="負け"?"lose":"");
-      const pnlC=e.pnl>0?"v-good":(e.pnl<0?"v-bad":"");
-      tr.innerHTML=`
-        <td>${e.date}</td>
-        <td><span class="tag ${tag}">${e.result}</span></td>
-        <td class="text-right ${pnlC}">${fmtYen(e.pnl)}</td>
-        <td style="padding-left:12px; color:var(--muted); overflow:hidden; text-overflow:ellipsis; max-width:200px;">
-          ${e.tickers.join("/")} | ${e.lossCause} | ${e.memo}
-        </td>
-        <td class="text-right">
-          <button class="btn-sec" style="padding:2px 6px;" onclick="loadEntry('${e.date}')">編集</button>
-          <button class="btn-danger" style="padding:2px 6px;" onclick="delEntry('${e.date}')">×</button>
-        </td>
-      `;
-      ui.rows.appendChild(tr);
-    });
+    // Render List (Card or Table)
+    const sorted = all.slice().reverse();
     
+    if(viewMode === "table"){
+      ui.rows.innerHTML="";
+      sorted.forEach(e=>{
+        const tr=document.createElement("tr");
+        const tag=e.result==="勝ち"?"win":(e.result==="負け"?"lose":"");
+        const pnlC=e.pnl>0?"v-good":(e.pnl<0?"v-bad":"");
+        tr.innerHTML=`
+          <td>${e.date}</td>
+          <td><span class="tag ${tag}">${e.result}</span></td>
+          <td class="text-right ${pnlC}">${fmtYen(e.pnl)}</td>
+          <td style="padding-left:12px; color:var(--muted); overflow:hidden; text-overflow:ellipsis; max-width:200px;">${e.lossCause} | ${e.memo}</td>
+          <td class="text-right"><button class="btn-sec" style="padding:2px 6px;" onclick="loadEntry('${e.date}')">✎</button></td>
+        `;
+        ui.rows.appendChild(tr);
+      });
+    } else {
+      ui.cardView.innerHTML = "";
+      sorted.forEach(e=>{
+        const div = document.createElement("div"); div.className="t-card";
+        const tag = e.result==="勝ち"?"win":(e.result==="負け"?"lose":"");
+        const pnlC = e.pnl>0?"v-good":(e.pnl<0?"v-bad":"");
+        
+        // Short labels
+        const metas = [];
+        if(e.tickers.length) metas.push(e.tickers.map(t=>t.split(" ")[1]||t).join("/"));
+        if(e.bias!=="不明") metas.push("方向:"+e.bias);
+        if(e.trades) metas.push(e.trades+"回");
+
+        div.innerHTML = `
+          <div class="t-actions">
+            <button class="btn-sec" onclick="loadEntry('${e.date}')">編集</button>
+            <button class="btn-danger" onclick="delEntry('${e.date}')">削除</button>
+          </div>
+          <div class="t-head">
+            <div class="t-date">${e.date} <span class="tag ${tag}" style="font-size:12px;">${e.result}</span></div>
+            <div class="t-pnl ${pnlC}">${fmtYen(e.pnl)}</div>
+          </div>
+          <div class="t-meta">
+            ${metas.map(m=>`<span class="t-pill">${m}</span>`).join("")}
+            <span class="t-pill" style="border-color:var(--muted)">評価:${e.grade}</span>
+          </div>
+          <div class="t-body">${(e.memo||"").replace(/\n/g, "<br>")}</div>
+          <div class="t-foot">
+            <div class="t-item"><strong>⚠️ 敗因</strong>${e.lossCause}</div>
+            <div class="t-item"><strong>✅ 守ったルール</strong>${e.keptRule}</div>
+            <div class="t-item"><strong>🚀 明日</strong>${e.nextAction}</div>
+          </div>
+        `;
+        ui.cardView.appendChild(div);
+      });
+    }
     updateGhLabel();
   }
 
-  window.loadEntry=(d)=>{ const f=loadAll().find(x=>x.date===d); if(f){ entryToForm(f); render(); window.scrollTo({top:0,behavior:"smooth"}); }};
+  window.loadEntry=(d)=>{ const f=loadAll().find(x=>x.date===d); if(f){ entryToForm(f); window.scrollTo({top:0,behavior:"smooth"}); }};
   window.delEntry=(d)=>{ if(confirm("削除しますか？")){ const n=loadAll().filter(x=>x.date!==d); saveAll(n); render(); }};
 
-  // Actions
-  $("btnSave").onclick=()=>{
-    const e=formToEntry();
-    const all=loadAll(), idx=all.findIndex(x=>x.date===e.date);
-    if(idx>=0)all[idx]=e; else all.push(e);
-    all.sort((a,b)=>a.date.localeCompare(b.date));
-    saveAll(all); render();
-    const cfg=loadGH(); if(cfg&&(cfg.autoMode==="onsave")) backupGH();
-    alert("保存しました");
+  // Buttons
+  $("btnSave").onclick=()=>{ const e=formToEntry(); const all=loadAll(), idx=all.findIndex(x=>x.date===e.date);
+    if(idx>=0)all[idx]=e; else all.push(e); all.sort((a,b)=>a.date.localeCompare(b.date));
+    saveAll(all); render(); const c=loadGH(); if(c&&(c.autoMode==="onsave")) backupGH(); alert("保存しました");
   };
-  $("btnResetForm").onclick=()=>{ entryToForm({date:todayISO()}); render(); };
-  $("btnLoadToday").onclick=()=>{ const f=loadAll().find(x=>x.date===(els.date.value||todayISO())); if(f) entryToForm(f); else alert("なし"); render(); };
+  $("btnResetForm").onclick=()=>{ entryToForm({date:todayISO()}); };
+  $("btnLoadToday").onclick=()=>{ const f=loadAll().find(x=>x.date===(els.date.value||todayISO())); if(f) entryToForm(f); else alert("なし"); };
   $("btnClearAll").onclick=()=>{ if(confirm("全削除？")){ localStorage.removeItem(KEY); render(); }};
-  
   $("btnExportCsv").onclick=()=>{
     const csv=["date,result,pnl,tickers,memo,updatedAt"];
-    loadAll().forEach(e=>csv.push(`${e.date},${e.result},${e.pnl||""},"${e.tickers.join(" ")}","${e.memo}",${e.updatedAt}`));
-    const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([csv.join("\n")],{type:"text/csv"}));
-    a.download="diary.csv"; a.click();
+    loadAll().forEach(e=>csv.push(`${e.date},${e.result},${e.pnl||""},"${e.tickers.join(" ")}","${e.memo.replace(/"/g,'""')}",${e.updatedAt}`));
+    const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([csv.join("\n")],{type:"text/csv"})); a.download="diary.csv"; a.click();
   };
 
-  // GitHub Logic
-  const loadGH=()=>JSON.parse(localStorage.getItem(GHKEY)||"null");
-  const saveGH=(c)=>localStorage.setItem(GHKEY,JSON.stringify(c));
-  const isGHReady=(c)=>c&&c.token&&c.owner&&c.repo;
-  const modal=$("modalBg");
-  
-  $("btnGitHub").onclick=()=>{
-    modal.style.display="flex"; const c=loadGH()||{};
-    $("ghOwner").value=c.owner||""; $("ghRepo").value=c.repo||""; $("ghToken").value=c.token||"";
-    $("ghBranch").value=c.branch||"main"; $("ghPath").value=c.path||"data/diary.json";
-    $("autoMode").value=c.autoMode||"off";
-    updateGhStatus();
-  };
-  $("btnCloseModal").onclick=()=>{ modal.style.display="none"; };
-  
-  $("btnSaveGh").onclick=()=>{
-    const c={owner:$("ghOwner").value, repo:$("ghRepo").value, branch:$("ghBranch").value, path:$("ghPath").value, token:$("ghToken").value, autoMode:$("autoMode").value};
-    saveGH(c); updateGhStatus(); updateGhLabel(); alert("設定保存");
-  };
+  // GitHub logic (Simplified)
+  const loadGH=()=>JSON.parse(localStorage.getItem(GHKEY)||"null"); const saveGH=(c)=>localStorage.setItem(GHKEY,JSON.stringify(c)); const isGHReady=(c)=>c&&c.token;
+  const modal=$("modalBg"); $("btnGitHub").onclick=()=>{ modal.style.display="flex"; const c=loadGH()||{}; $("ghOwner").value=c.owner||""; $("ghRepo").value=c.repo||""; $("ghToken").value=c.token||""; $("ghBranch").value=c.branch||"main"; $("ghPath").value=c.path||"data/diary.json"; $("autoMode").value=c.autoMode||"off"; updateGhStatus(); }; $("btnCloseModal").onclick=()=>{ modal.style.display="none"; };
+  $("btnSaveGh").onclick=()=>{ saveGH({owner:$("ghOwner").value, repo:$("ghRepo").value, branch:$("ghBranch").value, path:$("ghPath").value, token:$("ghToken").value, autoMode:$("autoMode").value}); updateGhStatus(); updateGhLabel(); alert("設定保存"); };
   $("btnClearGh").onclick=()=>{ localStorage.removeItem(GHKEY); updateGhStatus(); updateGhLabel(); };
-
-  function updateGhStatus(){
-    const c=loadGH(); $("ghStatus").textContent=isGHReady(c)?"設定済み":"未設定";
-    $("autoHint").textContent = "自動バックアップ: " + (c&&c.autoMode!=="off" ? "ON" : "OFF");
-  }
-  function updateGhLabel(){
-    const c=loadGH(); $("ghLabel").textContent="GitHub: "+(isGHReady(c)?`${c.owner}/${c.repo}`:"未設定");
-  }
-
+  function updateGhStatus(){ const c=loadGH(); $("ghStatus").textContent=isGHReady(c)?"設定済み":"未設定"; $("autoHint").textContent="自動バックアップ: "+(c&&c.autoMode!=="off"?"ON":"OFF"); }
+  function updateGhLabel(){ const c=loadGH(); $("ghLabel").textContent="GitHub: "+(isGHReady(c)?`${c.owner}/${c.repo}`:"未設定"); }
   const headers=(c)=>({"Authorization":`token ${c.token}`, "Accept":"application/vnd.github+json"});
-  async function ghGet(c){
-    const res=await fetch(`https://api.github.com/repos/${c.owner}/${c.repo}/contents/${c.path}?ref=${c.branch}`,{headers:headers(c)});
-    if(res.status===404)return{sha:null,data:[]};
-    const j=await res.json();
-    return {sha:j.sha, data:JSON.parse(decodeURIComponent(escape(atob(j.content))))};
-  }
-  async function ghPut(c,data,sha){
-    const body={message:"update", content:btoa(unescape(encodeURIComponent(JSON.stringify(data,null,2)))), branch:c.branch, sha};
-    await fetch(`https://api.github.com/repos/${c.owner}/${c.repo}/contents/${c.path}`,{method:"PUT",headers:headers(c),body:JSON.stringify(body)});
-  }
-  function merge(loc,rem){
-    const m=new Map(); [...loc,...rem].forEach(e=>{
-      const old=m.get(e.date);
-      if(!old || new Date(e.updatedAt)>new Date(old.updatedAt)) m.set(e.date,e);
-    });
-    return Array.from(m.values()).sort((a,b)=>a.date.localeCompare(b.date));
-  }
-  async function backupGH(){
-    const c=loadGH(); if(!isGHReady(c))return;
-    const r=await ghGet(c), l=loadAll();
-    const merged=merge(l, r.data||[]);
-    await ghPut(c,merged,r.sha); saveAll(merged); render();
-  }
-  async function restoreGH(){
-    const c=loadGH(); if(!isGHReady(c))return;
-    const r=await ghGet(c), l=loadAll();
-    const merged=merge(l, r.data||[]);
-    saveAll(merged); render();
-  }
+  async function ghGet(c){ const res=await fetch(`https://api.github.com/repos/${c.owner}/${c.repo}/contents/${c.path}?ref=${c.branch}`,{headers:headers(c)}); if(res.status===404)return{sha:null,data:[]}; const j=await res.json(); return {sha:j.sha, data:JSON.parse(decodeURIComponent(escape(atob(j.content))))}; }
+  async function ghPut(c,data,sha){ const body={message:"update", content:btoa(unescape(encodeURIComponent(JSON.stringify(data,null,2)))), branch:c.branch, sha}; await fetch(`https://api.github.com/repos/${c.owner}/${c.repo}/contents/${c.path}`,{method:"PUT",headers:headers(c),body:JSON.stringify(body)}); }
+  function merge(l,r){ const m=new Map(); [...l,...r].forEach(e=>{ const old=m.get(e.date); if(!old||new Date(e.updatedAt)>new Date(old.updatedAt))m.set(e.date,e); }); return Array.from(m.values()).sort((a,b)=>a.date.localeCompare(b.date)); }
+  async function backupGH(){ const c=loadGH(); if(!isGHReady(c))return; const r=await ghGet(c); const m=merge(loadAll(),r.data); await ghPut(c,m,r.sha); saveAll(m); render(); }
+  async function restoreGH(){ const c=loadGH(); if(!isGHReady(c))return; const r=await ghGet(c); saveAll(merge(loadAll(),r.data)); render(); }
+  $("btnBackup").onclick=async()=>{try{await backupGH();alert("完了")}catch(e){alert(e)}}; $("btnRestore").onclick=async()=>{try{await restoreGH();alert("完了")}catch(e){alert(e)}}; $("btnTest").onclick=async()=>{try{await ghGet(loadGH());alert("接続OK")}catch(e){alert(e)}};
 
-  $("btnBackup").onclick=async()=>{ try{await backupGH();alert("完了");}catch(e){alert("失敗:"+e);} };
-  $("btnRestore").onclick=async()=>{ try{await restoreGH();alert("完了");}catch(e){alert("失敗:"+e);} };
-  $("btnTest").onclick=async()=>{ try{await ghGet(loadGH());alert("接続OK");}catch(e){alert("失敗:"+e);} };
-
-  // Initialize
-  renderSelects();
-  els.date.value=todayISO();
-  render();
+  renderSelects(); els.date.value=todayISO(); render();
 </script>
 </body>
 </html>

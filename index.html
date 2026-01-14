@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>トレード日記 (Ultimate)</title>
+  <title>トレード日記 (Ultimate v2)</title>
   <style>
     :root{
       --bg:#0b1020; --card:#111a33; --text:#e9eefc; --muted:#9fb0dd;
@@ -30,7 +30,7 @@
       background:rgba(17,26,51,0.6);
       border:1px solid var(--border);
       box-shadow:0 12px 40px rgba(0,0,0,0.3);
-      border-radius:8px; margin-bottom:16px; /* 角丸を少し鋭く */
+      border-radius:8px; margin-bottom:16px;
       overflow:hidden;
     }
     .card-hd {
@@ -49,7 +49,7 @@
     label { display:block; font-size:11px; color:var(--muted); margin-bottom:4px; }
     select, input, textarea {
       width:100%; background:rgba(0,0,0,0.3); border:1px solid var(--border);
-      color:var(--text); border-radius:4px; padding:8px; outline:none; font-size:13px; /* Inputも鋭く */
+      color:var(--text); border-radius:4px; padding:8px; outline:none; font-size:13px;
     }
     select:focus, input:focus { border-color:var(--accent); background:rgba(0,0,0,0.5); }
     textarea { min-height:38px; height:38px; resize:vertical; }
@@ -60,7 +60,7 @@
 
     /* Buttons */
     button {
-      border:none; cursor:pointer; padding:6px 12px; border-radius:4px; /* Buttonも鋭く */
+      border:none; cursor:pointer; padding:6px 12px; border-radius:4px;
       font-size:12px; font-weight:700; transition:0.2s; white-space:nowrap;
     }
     .btn-primary { background:var(--accent); color:#0b1020; }
@@ -74,20 +74,18 @@
     .toggle-btn { flex:1; text-align:center; padding:6px 12px; font-size:12px; border-radius:4px; cursor:pointer; color:var(--muted); }
     .toggle-btn.active { background:var(--accent); color:#0b1020; font-weight:bold; }
 
-    /* === CHIPS (Fixed to be Stylish) === */
+    /* Chips */
     .chip-group { display:flex; flex-wrap:wrap; gap:8px; }
     .chip {
       display:inline-flex; align-items:center; gap:6px;
-      padding:6px 10px; /* 余白調整 */
-      border-radius:4px; /* ★ここを修正：丸（999px）から四角（4px）へ */
+      padding:6px 10px; border-radius:4px;
       background:rgba(255,255,255,0.05); 
       border:1px solid var(--border);
       font-size:12px; cursor:pointer; user-select:none;
-      white-space:nowrap; /* ★重要：改行禁止でデブ化を防ぐ */
-      transition: all 0.2s;
+      white-space:nowrap; transition: all 0.2s;
     }
     .chip:hover { background:rgba(255,255,255,0.1); border-color:var(--accent); }
-    .chip input { margin:0; width:auto; } /* チェックボックスの余白リセット */
+    .chip input { margin:0; width:auto; }
     .chip-del { margin-left:6px; color:var(--bad); font-weight:bold; padding:0 4px; }
     .chip-del:hover { background:rgba(255,107,107,0.2); border-radius:4px; }
 
@@ -98,7 +96,7 @@
     .kpi-val { font-size:16px; font-weight:bold; color:var(--text); }
     .v-good { color:var(--good); } .v-bad { color:var(--bad); }
 
-    /* === TIMELINE VIEW === */
+    /* Timeline */
     .timeline { display:flex; flex-direction:column; gap:16px; }
     .t-card {
       background:rgba(17,26,51,0.6); border:1px solid var(--border);
@@ -108,10 +106,8 @@
     .t-date-grp { display:flex; flex-direction:column; gap:4px; }
     .t-date { font-size:14px; font-weight:bold; color:var(--text); display:flex; align-items:center; gap:8px;}
     .t-actions { display:flex; gap:6px; }
-    
     .t-pnl-row { display:flex; align-items:baseline; gap:12px; margin-bottom:12px; padding-bottom:12px; border-bottom:1px solid rgba(255,255,255,0.05); }
     .t-pnl { font-size:20px; font-weight:800; letter-spacing:0.5px; }
-
     .t-meta { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px; }
     .badge {
       font-size:10px; padding:3px 8px; border-radius:4px; 
@@ -121,16 +117,12 @@
     .badge.long { border-color:rgba(79,172,254,0.4); color:var(--long); background:rgba(79,172,254,0.1); }
     .badge.short { border-color:rgba(255,88,88,0.4); color:var(--short); background:rgba(255,88,88,0.1); }
     .badge.mix { border-color:rgba(161,140,209,0.4); color:var(--mix); background:rgba(161,140,209,0.1); }
-    
     .badge.cnt-ok { border-color:rgba(73,227,162,0.4); color:var(--good); }
     .badge.cnt-warn { border-color:rgba(255,209,102,0.4); color:var(--warn); }
     .badge.cnt-bad { border-color:rgba(255,107,107,0.4); color:var(--bad); }
-
     .badge.rank-a { border-color:var(--good); color:#0b1020; background:var(--good); }
     .badge.rank-b { border-color:var(--muted); color:var(--text); }
     .badge.rank-c { border-color:var(--bad); color:var(--bad); }
-    
-    /* THE GOLDEN S RANK */
     .badge.rank-s {
       border:1px solid #ffd700;
       background: linear-gradient(135deg, #ffd700 0%, #fdb931 50%, #ffd700 100%);
@@ -145,7 +137,6 @@
       50% { background-position: 100% 50%; box-shadow: 0 0 15px rgba(255,215,0,0.7); }
       100% { background-position: 0% 50%; box-shadow: 0 0 5px rgba(255,215,0,0.3); }
     }
-
     .t-body { 
       background:rgba(0,0,0,0.25); border-radius:6px; padding:12px; 
       margin-bottom:12px; font-size:13px; line-height:1.6; color:#fff; white-space: pre-wrap;
@@ -157,7 +148,7 @@
     @media (min-width: 600px) { .t-foot { grid-template-columns: 1fr 1fr 1fr; } }
     .t-item strong { display:block; color:var(--accent); font-size:10px; margin-bottom:2px; opacity:0.8; }
 
-    /* Table View */
+    /* Table */
     .tbl-wrap { overflow-x:auto; }
     .tbl { width:100%; border-collapse:collapse; font-size:12px; white-space:nowrap; }
     .tbl th { text-align:left; color:var(--muted); padding:6px; border-bottom:1px solid var(--border); }
@@ -166,13 +157,12 @@
     .tag.win { border-color:var(--good); color:var(--good); }
     .tag.lose { border-color:var(--bad); color:var(--bad); }
 
-    /* Modals & Utils */
+    /* Modals */
     .flex-center { display:flex; align-items:center; gap:8px; }
     .text-right { text-align:right; }
     .mini-text { font-size:10px; color:var(--muted); margin-top:4px; }
     .overlay { position:fixed; inset:0; background:rgba(0,0,0,0.6); display:none; justify-content:center; align-items:center; z-index:99; padding:10px;}
     .modal-box { width:min(600px, 100%); background:#0f1730; border:1px solid var(--border); border-radius:8px; padding:20px; box-shadow:0 20px 50px #000; max-height:90vh; overflow-y:auto;}
-    
     .cfg-section { margin-bottom:20px; border-bottom:1px solid var(--border); padding-bottom:12px; }
     .cfg-list { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
     .cfg-add-row { display:flex; gap:8px; margin-top:8px; }
@@ -188,7 +178,7 @@
       <div class="mini-text" id="ghLabel">GitHub: 未設定</div>
     </div>
     <div class="header-btns">
-      <button class="btn-sec" id="btnConfig">⚙️ 選択肢</button>
+      <button class="btn-primary" id="btnCopyPrompt">📋 AI指示書</button> <button class="btn-sec" id="btnConfig">⚙️ 選択肢</button>
       <button class="btn-sec" id="btnGitHub">GitHub</button>
       <button class="btn-sec" id="btnBackup">バックアップ</button>
       <button class="btn-sec" id="btnRestore">復元</button>
@@ -341,62 +331,13 @@
           <tbody id="rows"></tbody>
         </table>
       </div>
-
     </div>
   </section>
 </div>
 
-<div class="overlay" id="lockBg" style="display:flex;">
-  <div class="modal-box" style="text-align:center;">
-    <h3>🔒 パスコードロック</h3>
-    <input type="password" id="lockPass" placeholder="パスコードを入力" style="margin:16px 0; text-align:center; font-size:16px;" />
-    <button class="btn-primary" id="btnUnlock" style="width:100%;">解除</button>
-    <div class="mini-text" style="color:var(--bad); display:none; margin-top:8px;" id="lockErr">パスコードが違います</div>
-  </div>
-</div>
-
-<div class="overlay" id="configBg">
-  <div class="modal-box">
-    <div style="display:flex; justify-content:space-between; margin-bottom:16px;">
-      <h3 style="margin:0;">選択肢の編集</h3>
-      <button class="btn-sec" id="btnCloseConfig" style="padding:2px 8px;">閉じる</button>
-    </div>
-    <div id="cfgContainer"></div>
-    <div class="mini-text">※ 変更は自動保存されます。</div>
-  </div>
-</div>
-
-<div class="overlay" id="modalBg">
-  <div class="modal-box">
-    <div style="display:flex; justify-content:space-between; margin-bottom:12px;">
-      <h3 style="margin:0;">GitHub設定</h3>
-      <button class="btn-sec" id="btnCloseModal" style="padding:2px 8px;">閉じる</button>
-    </div>
-    <div class="mini-text" id="ghStatus" style="margin-bottom:12px;">状態: 未設定</div>
-    
-    <div class="form-grid">
-      <div><label>Owner</label><input id="ghOwner" placeholder="user" /></div>
-      <div><label>Repo</label><input id="ghRepo" placeholder="repo" /></div>
-      <div><label>Branch</label><input id="ghBranch" placeholder="main" /></div>
-      <div><label>Path</label><input id="ghPath" placeholder="data/diary.json" /></div>
-      <div class="col-full"><label>Token (PAT)</label><input id="ghToken" type="password" /></div>
-      <div class="col-full">
-        <label>自動バックアップ</label>
-        <select id="autoMode">
-          <option value="off">OFF</option>
-          <option value="onsave">保存時に実行 (推奨)</option>
-          <option value="interval">定期実行 (15分)</option>
-        </select>
-        <input type="hidden" id="autoMinutes" value="15">
-      </div>
-      <div class="col-full" style="display:flex; gap:10px; margin-top:8px;">
-        <button class="btn-primary" id="btnSaveGh" style="flex:1;">保存</button>
-        <button class="btn-sec" id="btnTest">接続テスト</button>
-        <button class="btn-danger" id="btnClearGh">解除</button>
-      </div>
-    </div>
-  </div>
-</div>
+<div class="overlay" id="lockBg" style="display:flex;"><div class="modal-box" style="text-align:center;"><h3>🔒 パスコードロック</h3><input type="password" id="lockPass" placeholder="パスコードを入力" style="margin:16px 0; text-align:center; font-size:16px;" /><button class="btn-primary" id="btnUnlock" style="width:100%;">解除</button><div class="mini-text" style="color:var(--bad); display:none; margin-top:8px;" id="lockErr">パスコードが違います</div></div></div>
+<div class="overlay" id="configBg"><div class="modal-box"><div style="display:flex; justify-content:space-between; margin-bottom:16px;"><h3 style="margin:0;">選択肢の編集</h3><button class="btn-sec" id="btnCloseConfig" style="padding:2px 8px;">閉じる</button></div><div id="cfgContainer"></div><div class="mini-text">※ 変更は自動保存されます。</div></div></div>
+<div class="overlay" id="modalBg"><div class="modal-box"><div style="display:flex; justify-content:space-between; margin-bottom:12px;"><h3 style="margin:0;">GitHub設定</h3><button class="btn-sec" id="btnCloseModal" style="padding:2px 8px;">閉じる</button></div><div class="mini-text" id="ghStatus" style="margin-bottom:12px;">状態: 未設定</div><div class="form-grid"><div><label>Owner</label><input id="ghOwner" placeholder="user" /></div><div><label>Repo</label><input id="ghRepo" placeholder="repo" /></div><div><label>Branch</label><input id="ghBranch" placeholder="main" /></div><div><label>Path</label><input id="ghPath" placeholder="data/diary.json" /></div><div class="col-full"><label>Token (PAT)</label><input id="ghToken" type="password" /></div><div class="col-full"><label>自動バックアップ</label><select id="autoMode"><option value="off">OFF</option><option value="onsave">保存時に実行 (推奨)</option><option value="interval">定期実行 (15分)</option></select><input type="hidden" id="autoMinutes" value="15"></div><div class="col-full" style="display:flex; gap:10px; margin-top:8px;"><button class="btn-primary" id="btnSaveGh" style="flex:1;">保存</button><button class="btn-sec" id="btnTest">接続テスト</button><button class="btn-danger" id="btnClearGh">解除</button></div></div></div></div>
 
 <script>
   // =========================
@@ -426,6 +367,40 @@
       lbl.innerHTML = `<input type="checkbox" value="${t}">${t.split(" ")[1]||t}`; tc.appendChild(lbl);
     });
   }
+
+  // Generate Prompt
+  document.getElementById("btnCopyPrompt").onclick = () => {
+    const opts = userOpts;
+    const txt = `
+あなたは私の専属トレードコーチ『先生』です。
+本日の私たちのトレード会話履歴と、以下の『トレード日記』の仕様に基づき、今日の日記入力用データを生成してください。
+
+【出力要件】
+- 各項目に対し、会話内容から最も適切なものを選んでください。
+- 該当するものがない場合は「未入力」としてください。
+- 「一言メモ」は、会話の流れから私の感情や反省点、先生のアドバイスを要約して、簡潔かつ具体的に記述してください。
+- 出力はコピペしやすい形式（Markdownのリストやテーブル、または項目: 値 の形式）でお願いします。
+
+【現在の日記項目の仕様】
+■ 基本情報
+- 日付: YYYY/MM/DD
+- 相場タイプ: 不明 / トレンド / レンジ / 荒い / 薄い
+- 結果: 勝ち / 負け / トントン / ノートレ
+- 損益: 数値 (円)
+- エントリー回数: 数値 (回)
+- 方向感: 不明 / ロング / ショート / 両方ダメ / 未入力
+
+■ 選択肢リスト（※ここから最も近いものを選んでください）
+- 負け主因: [${opts.lossCause.join(", ")}]
+- 守れたルール: [${opts.keptRule.join(", ")}]
+- 明日のアクション: [${opts.nextAction.join(", ")}]
+- 主戦銘柄: [${opts.coreTickers.join(", ")}] ※これ以外の場合はコード+名称で記述
+
+■ 評価
+- 自己評価: S (完璧) / A (良い) / B (普通) / C (悪い)
+`.trim();
+    navigator.clipboard.writeText(txt).then(()=>alert("AI指示書をコピーしました！\nチャットに貼り付けてください。"));
+  };
 
   // Config UI
   const cfgBg=$("configBg"), cfgCont=$("cfgContainer");
@@ -458,7 +433,6 @@
   const KEY = "tradeDiary_v1"; const GHKEY = "tradeDiary_github";
   function $(id){return document.getElementById(id);}
 
-  // Lock
   const lockBg=$("lockBg"), lockPass=$("lockPass");
   function isUnlocked(){ return localStorage.getItem(UNLOCK_KEY)==="1"; }
   function showLock(){ lockBg.style.display="flex"; lockPass.value=""; setTimeout(()=>lockPass.focus(),50); }
@@ -467,10 +441,8 @@
   lockPass.onkeydown=(e)=>{if(e.key==="Enter")unlock();};
   if(!isUnlocked()) showLock(); else lockBg.style.display="none";
 
-  // Elements
   const els={ date:$("date"), marketType:$("marketType"), result:$("result"), pnl:$("pnl"), trades:$("trades"), bias:$("bias"), lossCause:$("lossCause"), keptRule:$("keptRule"), grade:$("grade"), nextAction:$("nextAction"), memo:$("memo"), extraTickers:$("extraTickers") };
   const ui={ todayLabel:$("todayLabel"), countLabel:$("countLabel"), rows:$("rows"), cardView:$("viewContainerCard") };
-  
   const todayISO=()=>{ const d=new Date(); return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,10); };
   function loadAll(){ try{return JSON.parse(localStorage.getItem(KEY)||"[]");}catch{return[];} }
   function saveAll(d){ localStorage.setItem(KEY,JSON.stringify(d)); }
@@ -498,16 +470,13 @@
     els.memo.value=e.memo||"";
   }
 
-  // View Switcher
-  let viewMode = "card"; // 'card' or 'table'
+  let viewMode = "card"; 
   $("viewCard").onclick = () => { viewMode="card"; render(); $("viewCard").className="toggle-btn active"; $("viewTable").className="toggle-btn"; $("viewContainerCard").style.display="flex"; $("viewContainerTable").style.display="none"; };
   $("viewTable").onclick = () => { viewMode="table"; render(); $("viewTable").className="toggle-btn active"; $("viewCard").className="toggle-btn"; $("viewContainerCard").style.display="none"; $("viewContainerTable").style.display="block"; };
 
   function render(){
     const all=loadAll();
     ui.countLabel.textContent=all.length; ui.todayLabel.textContent=els.date.value||todayISO();
-    
-    // KPI
     const ym=new Date().toISOString().slice(0,7);
     const m=all.filter(x=>(x.date||"").startsWith(ym));
     const pnl=m.reduce((a,x)=>a+(x.pnl||0),0);
@@ -520,22 +489,14 @@
     let top="-", max=0; for(let k in counts)if(counts[k]>max){max=counts[k];top=k;}
     $("kpiTopCause").textContent=top;
 
-    // Render List
     const sorted = all.slice().reverse();
-    
     if(viewMode === "table"){
       ui.rows.innerHTML="";
       sorted.forEach(e=>{
         const tr=document.createElement("tr");
         const tag=e.result==="勝ち"?"win":(e.result==="負け"?"lose":"");
         const pnlC=e.pnl>0?"v-good":(e.pnl<0?"v-bad":"");
-        tr.innerHTML=`
-          <td>${e.date}</td>
-          <td><span class="tag ${tag}">${e.result}</span></td>
-          <td class="text-right ${pnlC}">${fmtYen(e.pnl)}</td>
-          <td style="padding-left:12px; color:var(--muted); overflow:hidden; text-overflow:ellipsis; max-width:200px;">${e.lossCause} | ${e.memo}</td>
-          <td class="text-right"><button class="btn-sec" style="padding:2px 6px;" onclick="loadEntry('${e.date}')">✎</button></td>
-        `;
+        tr.innerHTML=`<td>${e.date}</td><td><span class="tag ${tag}">${e.result}</span></td><td class="text-right ${pnlC}">${fmtYen(e.pnl)}</td><td style="padding-left:12px; color:var(--muted); overflow:hidden; text-overflow:ellipsis; max-width:200px;">${e.lossCause} | ${e.memo}</td><td class="text-right"><button class="btn-sec" style="padding:2px 6px;" onclick="loadEntry('${e.date}')">✎</button></td>`;
         ui.rows.appendChild(tr);
       });
     } else {
@@ -545,53 +506,18 @@
         const resTag = e.result==="勝ち"?"win":(e.result==="負け"?"lose":"");
         const pnlC = e.pnl>0?"v-good":(e.pnl<0?"v-bad":"");
         
-        // Colors & Classes Logic
         let biasCls = ""; 
-        if(e.bias.includes("ロング")) biasCls="long";
-        else if(e.bias.includes("ショート")) biasCls="short";
-        else if(e.bias.includes("両方")) biasCls="mix";
+        if(e.bias.includes("ロング")) biasCls="long"; else if(e.bias.includes("ショート")) biasCls="short"; else if(e.bias.includes("両方")) biasCls="mix";
+        let cntCls = "cnt-ok"; const tNum = Number(e.trades); if(tNum >= 3) cntCls="cnt-warn"; if(tNum >= 6) cntCls="cnt-bad";
+        let rankCls = ""; if(e.grade==="S") rankCls="rank-s"; else if(e.grade==="A") rankCls="rank-a"; else if(e.grade==="B") rankCls="rank-b"; else if(e.grade==="C") rankCls="rank-c";
         
-        let cntCls = "cnt-ok";
-        const tNum = Number(e.trades);
-        if(tNum >= 3) cntCls="cnt-warn";
-        if(tNum >= 6) cntCls="cnt-bad";
-
-        let rankCls = "";
-        if(e.grade==="S") rankCls="rank-s";
-        else if(e.grade==="A") rankCls="rank-a";
-        else if(e.grade==="B") rankCls="rank-b";
-        else if(e.grade==="C") rankCls="rank-c";
-        
-        // Meta Pills
         let pills = [];
         if(e.tickers.length) pills.push(`<span class="badge">${e.tickers.map(t=>t.split(" ")[1]||t).join("/")}</span>`);
         if(e.bias!=="不明" && e.bias!=="未入力") pills.push(`<span class="badge ${biasCls}">${e.bias}</span>`);
         if(e.trades) pills.push(`<span class="badge ${cntCls}">${e.trades}回</span>`);
         if(e.grade!=="未入力") pills.push(`<span class="badge ${rankCls}">評価:${e.grade}</span>`);
 
-        div.innerHTML = `
-          <div class="t-top">
-            <div class="t-date-grp">
-              <div class="t-date">${e.date} <span class="tag ${resTag}">${e.result}</span></div>
-            </div>
-            <div class="t-actions">
-              <button class="btn-sec" style="font-size:10px; padding:4px 8px;" onclick="loadEntry('${e.date}')">編集</button>
-              <button class="btn-danger" style="font-size:10px; padding:4px 8px;" onclick="delEntry('${e.date}')">削除</button>
-            </div>
-          </div>
-          <div class="t-pnl-row">
-            <span class="t-pnl ${pnlC}">${fmtYen(e.pnl)}</span>
-          </div>
-          <div class="t-meta">
-            ${pills.join("")}
-          </div>
-          <div class="t-body">${(e.memo||"").replace(/\n/g, "<br>")}</div>
-          <div class="t-foot">
-            <div class="t-item"><strong>⚠️ 敗因</strong>${e.lossCause}</div>
-            <div class="t-item"><strong>✅ 守ったルール</strong>${e.keptRule}</div>
-            <div class="t-item"><strong>🚀 明日</strong>${e.nextAction}</div>
-          </div>
-        `;
+        div.innerHTML = `<div class="t-top"><div class="t-date-grp"><div class="t-date">${e.date} <span class="tag ${resTag}">${e.result}</span></div></div><div class="t-actions"><button class="btn-sec" style="font-size:10px; padding:4px 8px;" onclick="loadEntry('${e.date}')">編集</button><button class="btn-danger" style="font-size:10px; padding:4px 8px;" onclick="delEntry('${e.date}')">削除</button></div></div><div class="t-pnl-row"><span class="t-pnl ${pnlC}">${fmtYen(e.pnl)}</span></div><div class="t-meta">${pills.join("")}</div><div class="t-body">${(e.memo||"").replace(/\n/g, "<br>")}</div><div class="t-foot"><div class="t-item"><strong>⚠️ 敗因</strong>${e.lossCause}</div><div class="t-item"><strong>✅ 守ったルール</strong>${e.keptRule}</div><div class="t-item"><strong>🚀 明日</strong>${e.nextAction}</div></div>`;
         ui.cardView.appendChild(div);
       });
     }
@@ -600,22 +526,12 @@
 
   window.loadEntry=(d)=>{ const f=loadAll().find(x=>x.date===d); if(f){ entryToForm(f); window.scrollTo({top:0,behavior:"smooth"}); }};
   window.delEntry=(d)=>{ if(confirm("削除しますか？")){ const n=loadAll().filter(x=>x.date!==d); saveAll(n); render(); }};
-
-  // Buttons
-  $("btnSave").onclick=()=>{ const e=formToEntry(); const all=loadAll(), idx=all.findIndex(x=>x.date===e.date);
-    if(idx>=0)all[idx]=e; else all.push(e); all.sort((a,b)=>a.date.localeCompare(b.date));
-    saveAll(all); render(); const c=loadGH(); if(c&&(c.autoMode==="onsave")) backupGH(); alert("保存しました");
-  };
+  $("btnSave").onclick=()=>{ const e=formToEntry(); const all=loadAll(), idx=all.findIndex(x=>x.date===e.date); if(idx>=0)all[idx]=e; else all.push(e); all.sort((a,b)=>a.date.localeCompare(b.date)); saveAll(all); render(); const c=loadGH(); if(c&&(c.autoMode==="onsave")) backupGH(); alert("保存しました"); };
   $("btnResetForm").onclick=()=>{ entryToForm({date:todayISO()}); };
   $("btnLoadToday").onclick=()=>{ const f=loadAll().find(x=>x.date===(els.date.value||todayISO())); if(f) entryToForm(f); else alert("なし"); };
   $("btnClearAll").onclick=()=>{ if(confirm("全削除？")){ localStorage.removeItem(KEY); render(); }};
-  $("btnExportCsv").onclick=()=>{
-    const csv=["date,result,pnl,tickers,memo,updatedAt"];
-    loadAll().forEach(e=>csv.push(`${e.date},${e.result},${e.pnl||""},"${e.tickers.join(" ")}","${e.memo.replace(/"/g,'""')}",${e.updatedAt}`));
-    const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([csv.join("\n")],{type:"text/csv"})); a.download="diary.csv"; a.click();
-  };
+  $("btnExportCsv").onclick=()=>{ const csv=["date,result,pnl,tickers,memo,updatedAt"]; loadAll().forEach(e=>csv.push(`${e.date},${e.result},${e.pnl||""},"${e.tickers.join(" ")}","${e.memo.replace(/"/g,'""')}",${e.updatedAt}`)); const a=document.createElement("a"); a.href=URL.createObjectURL(new Blob([csv.join("\n")],{type:"text/csv"})); a.download="diary.csv"; a.click(); };
 
-  // GitHub logic (Simplified)
   const loadGH=()=>JSON.parse(localStorage.getItem(GHKEY)||"null"); const saveGH=(c)=>localStorage.setItem(GHKEY,JSON.stringify(c)); const isGHReady=(c)=>c&&c.token;
   const modal=$("modalBg"); $("btnGitHub").onclick=()=>{ modal.style.display="flex"; const c=loadGH()||{}; $("ghOwner").value=c.owner||""; $("ghRepo").value=c.repo||""; $("ghToken").value=c.token||""; $("ghBranch").value=c.branch||"main"; $("ghPath").value=c.path||"data/diary.json"; $("autoMode").value=c.autoMode||"off"; updateGhStatus(); }; $("btnCloseModal").onclick=()=>{ modal.style.display="none"; };
   $("btnSaveGh").onclick=()=>{ saveGH({owner:$("ghOwner").value, repo:$("ghRepo").value, branch:$("ghBranch").value, path:$("ghPath").value, token:$("ghToken").value, autoMode:$("autoMode").value}); updateGhStatus(); updateGhLabel(); alert("設定保存"); };

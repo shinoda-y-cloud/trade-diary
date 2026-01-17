@@ -383,27 +383,32 @@
   </div>
 </div>
 
-<!-- 📘 講義ノート（壊れない：DOMを先に置く） -->
+<!-- 📘 講義ノート -->
 <div class="overlay" id="lectureBg">
   <div class="modal-box">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
       <h3 style="margin:0;">📘 トレード講義ノート</h3>
-      <button class="btn-sec" id="btnCloseLecture" style="padding:2px 8px;">閉じる</button>
+      <div style="display:flex; gap:8px;">
+        <button class="btn-sec" id="btnLectureReset" style="padding:2px 8px;">初期に戻す</button>
+        <button class="btn-sec" id="btnCloseLecture" style="padding:2px 8px;">閉じる</button>
+      </div>
     </div>
 
-    <div style="font-size:13px; line-height:1.7; color:var(--text);">
-      <p><strong>■ このノートは何か</strong></p>
-      <ul>
-        <li>先生との会話で学んだことを蓄積する</li>
-        <li>ザラ場中でもすぐ確認できる</li>
-        <li>自分専用の「勝ちパターン辞書」</li>
-      </ul>
+    <div class="mini-text" style="margin-bottom:8px;">
+      ※ このノートはローカルに保存されます（ブラウザ内）。保存ボタンで確定。
+    </div>
 
-      <hr style="border:0; border-top:1px solid var(--border); margin:16px 0;">
+    <label style="margin-top:8px;">本文（自由に追記OK）</label>
+    <textarea id="lectureText" style="height:320px; min-height:240px; line-height:1.7;"
+      placeholder="ここに講義ノートを書きます。章立て・箇条書き推奨。"></textarea>
 
-      <p style="color:var(--muted);">
-        ※ この内容は後で自由に編集・追加できるようにします
-      </p>
+    <div style="display:flex; gap:10px; margin-top:10px;">
+      <button class="btn-primary" id="btnLectureSave" style="flex:1;">保存</button>
+      <button class="btn-sec" id="btnLectureCopy">コピー</button>
+    </div>
+
+    <div class="mini-text" id="lectureSavedHint" style="display:none; margin-top:8px; color:var(--good);">
+      保存しました。
     </div>
   </div>
 </div>
@@ -832,6 +837,74 @@ document.addEventListener("DOMContentLoaded", () => {
     a.remove();
     URL.revokeObjectURL(url);
   };
+
+  // =========================
+  // LECTURE NOTE (localStorage)
+  // =========================
+  const LECTURE_KEY = "tradeDiary_lecture_v1";
+  const DEFAULT_LECTURE = `
+■ このノートは何か
+- 先生との会話で学んだことを蓄積する
+- ザラ場中でもすぐ確認できる
+- 自分専用の「勝ちパターン辞書」
+
+■ 目次（例）
+1) 水平線
+2) 並行チャネル
+3) フィボナッチ
+`.trim();
+
+  function getLecture(){
+    return localStorage.getItem(LECTURE_KEY) || DEFAULT_LECTURE;
+  }
+  function setLecture(text){
+    localStorage.setItem(LECTURE_KEY, text);
+  }
+
+  const lectureBg = $("lectureBg");
+  const lectureText = $("lectureText");
+  const lectureSavedHint = $("lectureSavedHint");
+
+  function openLecture(){
+    lectureText.value = getLecture();
+    lectureSavedHint.style.display = "none";
+    lectureBg.style.display = "flex";
+    // モーダル表示後にフォーカス
+    setTimeout(()=>lectureText.focus(), 50);
+  }
+  function closeLecture(){
+    lectureBg.style.display = "none";
+  }
+
+  // 既存のボタンに接続
+  $("btnLecture").onclick = openLecture;
+  $("btnCloseLecture").onclick = closeLecture;
+
+  $("btnLectureSave").onclick = () => {
+    setLecture((lectureText.value||"").trim());
+    lectureSavedHint.style.display = "block";
+    setTimeout(()=>lectureSavedHint.style.display="none", 1200);
+  };
+
+  $("btnLectureCopy").onclick = async () => {
+    const txt = (lectureText.value||"").trim();
+    await navigator.clipboard.writeText(txt);
+    alert("講義ノートをコピーしました。");
+  };
+
+  $("btnLectureReset").onclick = () => {
+    if(confirm("講義ノートを初期状態に戻しますか？")){
+      setLecture(DEFAULT_LECTURE);
+      lectureText.value = DEFAULT_LECTURE;
+      lectureSavedHint.style.display = "block";
+      setTimeout(()=>lectureSavedHint.style.display="none", 1200);
+    }
+  };
+
+  // 背景クリックで閉じる（誤爆防止で外側のみ）
+  lectureBg.addEventListener("click", (e)=>{
+    if(e.target === lectureBg) closeLecture();
+  });
 
   // =========================
   // LECTURE MODAL (open/close)

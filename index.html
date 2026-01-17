@@ -549,5 +549,29 @@
 
   renderSelects(); els.date.value=todayISO(); render();
 </script>
+  <!-- 📘 トレード講義ノート（モーダル） -->
+<div class="overlay" id="lectureBg">
+  <div class="modal-box">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+      <h3 style="margin:0;">📘 トレード講義ノート</h3>
+      <button class="btn-sec" id="btnCloseLecture" style="padding:2px 8px;">閉じる</button>
+    </div>
+
+    <div style="font-size:13px; line-height:1.7; color:var(--text);">
+      <p><strong>■ このノートは何か</strong></p>
+      <ul>
+        <li>先生との会話で学んだことを蓄積する</li>
+        <li>ザラ場中でもすぐ確認できる</li>
+        <li>自分専用の「勝ちパターン辞書」</li>
+      </ul>
+
+      <hr style="border:0; border-top:1px solid var(--border); margin:16px 0;">
+
+      <p style="color:var(--muted);">
+        ※ この内容は後で自由に編集・追加できるようにします
+      </p>
+    </div>
+  </div>
+</div>
 </body>
 </html>

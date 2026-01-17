@@ -548,6 +548,21 @@
   $("btnBackup").onclick=async()=>{try{await backupGH();alert("完了")}catch(e){alert(e)}}; $("btnRestore").onclick=async()=>{try{await restoreGH();alert("完了")}catch(e){alert(e)}}; $("btnTest").onclick=async()=>{try{await ghGet(loadGH());alert("接続OK")}catch(e){alert(e)}};
 
   renderSelects(); els.date.value=todayISO(); render();
+  // =========================
+// 📘 講義ノート モーダル制御
+// =========================
+const lectureBg = document.getElementById("lectureBg");
+const btnLecture = document.getElementById("btnLecture");
+const btnCloseLecture = document.getElementById("btnCloseLecture");
+
+btnLecture.onclick = () => {
+  lectureBg.style.display = "flex";
+};
+
+btnCloseLecture.onclick = () => {
+  lectureBg.style.display = "none";
+};
+
 </script>
   <!-- 📘 トレード講義ノート（モーダル） -->
 <div class="overlay" id="lectureBg">

@@ -1,173 +1,126 @@
 <!doctype html>
 <html lang="ja">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>トレード日記 Ultimate</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>トレード日記 Ultimate</title>
 
-<style>
-:root{
-  --bg:#0b1020; --card:#111a33; --text:#e9eefc; --muted:#9fb0dd;
-  --border:rgba(255,255,255,.12); --accent:#67d3ff;
-}
-*{box-sizing:border-box}
-body{
-  margin:0;
-  font-family:system-ui,-apple-system,sans-serif;
-  background:var(--bg);
-  color:var(--text);
-}
-.container{max-width:1000px;margin:0 auto;padding:16px}
-.header-btns{display:flex;gap:8px;flex-wrap:wrap}
-button{
-  padding:6px 12px;
-  border-radius:4px;
-  border:1px solid var(--border);
-  background:transparent;
-  color:var(--text);
-  font-size:12px;
-  font-weight:700;
-  cursor:pointer;
-}
-.btn-primary{background:var(--accent);color:#000;border:none}
-.card{background:var(--card);border:1px solid var(--border);border-radius:8px;margin-top:16px}
-.card-hd{padding:10px;border-bottom:1px solid var(--border);font-size:12px;color:var(--muted)}
-.card-bd{padding:14px}
-
-/* modal */
-.overlay{
-  position:fixed;inset:0;
-  background:rgba(0,0,0,.6);
-  display:none;
-  justify-content:center;
-  align-items:center;
-  z-index:100;
-}
-.modal-box{
-  width:min(640px,100%);
-  background:#0f1730;
-  border-radius:8px;
-  border:1px solid var(--border);
-  padding:20px;
-  max-height:90vh;
-  overflow:auto;
-}
-
-/* lecture */
-.lecture-item{border:1px solid var(--border);border-radius:6px;margin-bottom:10px}
-.lecture-head{
-  padding:10px;
-  cursor:pointer;
-  font-weight:700;
-  background:rgba(255,255,255,.04)
-}
-.lecture-body{
-  display:none;
-  padding:12px;
-  line-height:1.7;
-  font-size:13px
-}
-</style>
+  <style>
+    :root{
+      --bg:#0b1020; --card:#111a33; --text:#e9eefc; --muted:#9fb0dd;
+      --border:rgba(255,255,255,0.12);
+      --accent:#67d3ff; --good:#49e3a2; --bad:#ff6b6b; --warn:#ffd166;
+      --long:#4facfe; --short:#ff5858; --mix:#a18cd1;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:system-ui,-apple-system,sans-serif;
+      background:radial-gradient(1200px 700px at 20% -10%, #17306b 0%, transparent 55%),
+                 radial-gradient(900px 600px at 110% 20%, #2b145b 0%, transparent 55%),
+                 var(--bg);
+      color:var(--text); padding-bottom:80px;
+    }
+    .container{max-width:1000px;margin:0 auto;padding:0 16px}
+    header{padding:20px 0 10px;display:flex;justify-content:space-between;align-items:end;gap:10px;flex-wrap:wrap}
+    h1{font-size:18px;margin:0;font-weight:800;letter-spacing:1px}
+    .header-btns{display:flex;gap:8px;flex-wrap:wrap}
+    button{border:none;cursor:pointer;padding:6px 12px;border-radius:4px;font-size:12px;font-weight:700}
+    .btn-primary{background:var(--accent);color:#0b1020}
+    .btn-sec{background:transparent;border:1px solid var(--border);color:var(--muted)}
+    .btn-danger{background:rgba(255,107,107,.15);color:var(--bad);border:1px solid rgba(255,107,107,.3)}
+    .card{background:rgba(17,26,51,.6);border:1px solid var(--border);border-radius:8px;margin-bottom:16px}
+    .card-hd{padding:10px 14px;border-bottom:1px solid var(--border);font-size:12px;color:var(--muted)}
+    .card-bd{padding:14px}
+    .form-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+    label{font-size:11px;color:var(--muted)}
+    input,select,textarea{width:100%;background:rgba(0,0,0,.3);border:1px solid var(--border);color:var(--text);padding:8px;border-radius:4px}
+    textarea{grid-column:1/-1}
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);display:none;justify-content:center;align-items:center;z-index:99}
+    .modal-box{background:#0f1730;border:1px solid var(--border);border-radius:8px;padding:20px;width:min(600px,100%)}
+  </style>
 </head>
 
 <body>
 
 <div class="container">
-  <header style="display:flex;justify-content:space-between;align-items:end;gap:10px">
-    <h1 style="font-size:18px;margin:0">トレード日記 Ultimate</h1>
-    <div class="header-btns">
-      <button class="btn-primary">📋 AI指示書</button>
-      <button id="btnLecture">📘 講義ノート</button>
-    </div>
-  </header>
+<header>
+  <h1>トレード日記 Ultimate</h1>
+  <div class="header-btns">
+    <button class="btn-primary" id="btnCopyPrompt">📋 AI指示書</button>
+    <button class="btn-sec" id="btnLecture">📘 講義ノート</button>
+  </div>
+</header>
 
-  <section class="card">
-    <div class="card-hd">📝 日記（省略表示）</div>
-    <div class="card-bd">※ 本体機能はそのまま使用可能</div>
-  </section>
+<section class="card">
+  <div class="card-hd">📝 今日の記録</div>
+  <div class="card-bd form-grid">
+    <div><label>日付</label><input type="date" id="date"></div>
+    <div><label>結果</label>
+      <select id="result">
+        <option>未入力</option><option>勝ち</option><option>負け</option><option>トントン</option><option>ノートレ</option>
+      </select>
+    </div>
+    <div><label>損益</label><input id="pnl" type="number"></div>
+    <div><label>エントリー回数</label><input id="trades" type="number"></div>
+    <textarea id="memo" placeholder="反省・気づき"></textarea>
+    <button class="btn-primary" id="btnSave">保存</button>
+  </div>
+</section>
+
+<section class="card">
+  <div class="card-hd">📊 過去の記録</div>
+  <div class="card-bd" id="list"></div>
+</section>
 </div>
 
-<!-- 📘 講義ノート モーダル -->
+<!-- 📘 講義ノート -->
 <div class="overlay" id="lectureBg">
   <div class="modal-box">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
-      <h3 style="margin:0">📘 トレード講義ノート</h3>
-      <button id="btnCloseLecture">閉じる</button>
-    </div>
-
-    <div class="lecture-item">
-      <div class="lecture-head">① 水平線（最重要）</div>
-      <div class="lecture-body">
-        <ul>
-          <li>日足・1時間足の高値安値を最優先</li>
-          <li>前日高値・安値は必ず引く</li>
-          <li>迷ったらヒゲ先</li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="lecture-item">
-      <div class="lecture-head">② 並行チャネル</div>
-      <div class="lecture-body">
-        <ul>
-          <li>基本は1時間足</li>
-          <li>上下限のみ使う</li>
-          <li>真ん中は触らない</li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="lecture-item">
-      <div class="lecture-head">③ フィボナッチ</div>
-      <div class="lecture-body">
-        <ul>
-          <li>38.2 / 50 / 61.8</li>
-          <li>ヨコヨコでは使わない</li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="lecture-item">
-      <div class="lecture-head">④ 時間軸</div>
-      <div class="lecture-body">
-        <ul>
-          <li>日足：方向</li>
-          <li>1時間足：壁</li>
-          <li>5分足：エントリー</li>
-        </ul>
-      </div>
-    </div>
-
-    <div class="lecture-item">
-      <div class="lecture-head">⑤ 先生の鉄則</div>
-      <div class="lecture-body">
-        <ul>
-          <li>根拠は2つ以上</li>
-          <li>迷ったら見送り</li>
-          <li>線を引きすぎない</li>
-        </ul>
-      </div>
-    </div>
-
+    <h3>📘 トレード講義ノート</h3>
+    <p>・負け回避が最優先<br>・初動逃したら追わない<br>・迷ったらエントリーしない</p>
+    <button class="btn-sec" id="btnCloseLecture">閉じる</button>
   </div>
 </div>
 
 <script>
-// モーダル開閉
-const lectureBg = document.getElementById("lectureBg");
-document.getElementById("btnLecture").onclick = () => lectureBg.style.display="flex";
-document.getElementById("btnCloseLecture").onclick = () => lectureBg.style.display="none";
+const KEY="tradeDiary_v1";
 
-// アコーディオン
-document.querySelectorAll(".lecture-head").forEach(h=>{
-  h.onclick=()=>{
-    const b=h.nextElementSibling;
-    const open=b.style.display==="block";
-    document.querySelectorAll(".lecture-body").forEach(x=>x.style.display="none");
-    b.style.display=open?"none":"block";
+function loadAll(){return JSON.parse(localStorage.getItem(KEY)||"[]")}
+function saveAll(d){localStorage.setItem(KEY,JSON.stringify(d))}
+function today(){return new Date().toISOString().slice(0,10)}
+
+const els={
+  date:date,result:result,pnl:pnl,trades:trades,memo:memo
+};
+
+btnSave.onclick=()=>{
+  const all=loadAll();
+  const e={
+    date:els.date.value||today(),
+    result:els.result.value,
+    pnl:+els.pnl.value||0,
+    trades:+els.trades.value||0,
+    memo:els.memo.value,
+    updatedAt:new Date().toISOString()
   };
-});
-</script>
+  const i=all.findIndex(x=>x.date===e.date);
+  if(i>=0)all[i]=e;else all.push(e);
+  saveAll(all);render();
+};
 
+function render(){
+  list.innerHTML="";
+  loadAll().slice().reverse().forEach(e=>{
+    const d=document.createElement("div");
+    d.textContent=`${e.date}｜${e.result}｜${e.pnl}円｜${e.memo}`;
+    list.appendChild(d);
+  });
+}
+
+btnLecture.onclick=()=>lectureBg.style.display="flex";
+btnCloseLecture.onclick=()=>lectureBg.style.display="none";
+
+els.date.value=today();render();
+</script>
 </body>
 </html>

@@ -728,8 +728,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   window.loadEntry=(d)=>{
     const f=loadAll().find(x=>x.date===d);
-    if(f){ entryToForm(f); window.scrollTo
-(0,0);
+    if(f){ entryToForm(f); window.scrollTo(0,0);
     }
   };
 
@@ -905,13 +904,6 @@ document.addEventListener("DOMContentLoaded", () => {
   lectureBg.addEventListener("click", (e)=>{
     if(e.target === lectureBg) closeLecture();
   });
-
-  // =========================
-  // LECTURE MODAL (open/close)
-  // =========================
-  const lectureBg=$("lectureBg");
-  $("btnLecture").onclick=()=>{ lectureBg.style.display="flex"; };
-  $("btnCloseLecture").onclick=()=>{ lectureBg.style.display="none"; };
 
   // =========================
   // GITHUB STORAGE

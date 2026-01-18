@@ -747,6 +747,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   if(isDictOnly()){
     document.body.classList.add("dict-only");
+    setTimeout(()=>{ try{ openLecture(); }catch(e){} }, 0); // ★初回だけ開く
   }
 
   window.addEventListener("hashchange", ()=>{
@@ -1744,11 +1745,6 @@ function loadDict(){
 
 
   function openLecture(){
-
-      // 辞書専用モードなら起動時に自動で辞書を全画面表示
-  if(location.hash === "#dict"){
-    setTimeout(()=>openLecture(), 0);
-  }
 
     dict = loadDict();
     const hIdx = dict.findIndex(x=>x.id==="horizontal-line");

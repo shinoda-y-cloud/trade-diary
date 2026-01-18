@@ -159,7 +159,7 @@
     .cfg-list { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
     .cfg-add-row { display:flex; gap:8px; margin-top:8px; }
 
-    /* =========================
+/* =========================
    DICTIONARY (CARD UI)
    ========================= */
 .dict-wrap{
@@ -564,9 +564,12 @@
         <div class="dict-left-hd">カード一覧</div>
         <div id="dictList" class="dict-list"></div>
 
-        <div class="dict-actions">
-          <button class="btn-sec" id="btnLectureCopy" style="flex:1;">このカードをコピー</button>
-        </div>
+<div class="dict-actions">
+  <button class="btn-sec" id="btnLectureCopy" style="flex:1;">このカードをコピー</button>
+  <button class="btn-primary" id="btnDictEdit" style="flex:1;">編集</button>
+  <button class="btn-sec" id="btnDictNew" style="flex:1;">＋新規</button>
+</div>
+
 
         <div class="mini-text" style="opacity:.8; margin-top:8px;">
           ※ まずは《水平線》を完成形に固定し、次に他カードを追加していきます。
@@ -1058,6 +1061,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const DEFAULT_DICT = [
     {
+
+    // =========================
+    // 水平線
+    // =========================
       id: "horizontal-line",
       title: "水平線（レジサポ）",
       summary: "最優先。全員が見ている“共通の壁”を作る。",
@@ -1095,7 +1102,10 @@ document.addEventListener("DOMContentLoaded", () => {
 ・線を増やしすぎて判断が遅れる
 ・上位足の線を無視して5分足だけで戦う（ダマシ率↑）`
     },
-    
+
+    // =========================
+    // 並行チャネル
+    // =========================
     { id:"parallel-channel", 
      title:"並行チャネル", 
      summary:"（次に作成）", 
@@ -1150,7 +1160,10 @@ ng:
 ・抜けたのに「戻るはず」で粘る（損切り遅れ）
 ・上位足の水平線を無視して、チャネルだけを信じる`
 },
-    
+
+    // =========================
+    // フィボナッチ
+    // =========================    
     { id:"fibonacci", 
      title:"フィボナッチ（使う場面限定）", 
      summary:"（次に作成）", 

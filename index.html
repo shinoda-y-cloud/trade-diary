@@ -238,18 +238,18 @@
   opacity:.95;
   margin-bottom:6px;
 }
-.dict-sec-b{
+.dict-sec-b{.dict-sec-b{
   font-size:13px;
   line-height:1.85;
   color:#fff;
 
-  /* 改行を「必要最小限」にする */
-  white-space:normal;
-
-  /* 日本語の折り返し最適化 */
-  word-break:normal;
-  overflow-wrap:anywhere;
+  /* ここが重要：anywhere は禁止 */
+  white-space: normal;
+  overflow-wrap: break-word;  /* 長い英数字だけ適切に折る */
+  word-break: normal;         /* 日本語を変な位置で割らない */
+  line-break: strict;         /* 日本語の禁則を効かせる（対応ブラウザのみ） */
 }
+
 .dict-foot{
   margin-top:10px;
   border-top:1px solid rgba(255,255,255,0.08);

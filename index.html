@@ -238,16 +238,17 @@
   opacity:.95;
   margin-bottom:6px;
 }
-.dict-sec-b{.dict-sec-b{
+.dict-sec-b{
   font-size:13px;
   line-height:1.85;
   color:#fff;
 
-  /* ここが重要：anywhere は禁止 */
+  /* 改行は普通に。変な折り返しを抑制 */
   white-space: normal;
-  overflow-wrap: break-word;  /* 長い英数字だけ適切に折る */
+  overflow-wrap: break-word;  /* 長い英数字だけ折る */
   word-break: normal;         /* 日本語を変な位置で割らない */
-  line-break: strict;         /* 日本語の禁則を効かせる（対応ブラウザのみ） */
+  /* line-break は好みで（不要なら消してOK） */
+  /* line-break: strict; */
 }
 
 .dict-foot{
@@ -255,6 +256,7 @@
   border-top:1px solid rgba(255,255,255,0.08);
   padding-top:10px;
 }
+
 /* =========================
    DICTIONARY UI FIX (v1)
    ========================= */

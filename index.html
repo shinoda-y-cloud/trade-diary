@@ -315,6 +315,58 @@
   word-break: normal;
 }
 
+/* =========================
+   DICT EDITOR
+   ========================= */
+.dict-editor{
+  margin-top:12px;
+  border:1px solid rgba(255,255,255,0.10);
+  background:rgba(0,0,0,0.18);
+  border-radius:12px;
+  padding:12px;
+}
+.dict-editor .row{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap:10px;
+}
+@media (max-width: 820px){
+  .dict-editor .row{ grid-template-columns: 1fr; }
+}
+.dict-editor label{
+  display:block;
+  font-size:11px;
+  color:var(--muted);
+  margin-bottom:4px;
+}
+.dict-editor input, .dict-editor textarea{
+  width:100%;
+  background:rgba(0,0,0,0.28);
+  border:1px solid var(--border);
+  color:var(--text);
+  border-radius:8px;
+  padding:10px;
+  outline:none;
+  font-size:12px;
+}
+.dict-editor textarea{
+  min-height:110px;
+  resize:vertical;
+  line-height:1.6;
+}
+.dict-editor .actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:10px;
+}
+.dict-editor .hint{
+  margin-top:8px;
+  font-size:10px;
+  color:var(--muted);
+  opacity:.9;
+}
+
   </style>
 </head>
 
@@ -1061,10 +1113,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const DEFAULT_DICT = [
     {
-
-    // =========================
-    // 水平線
-    // =========================
+      // =========================
+      // 水平線
+      // =========================
       id: "horizontal-line",
       title: "水平線（レジサポ）",
       summary: "最優先。全員が見ている“共通の壁”を作る。",
@@ -1106,11 +1157,12 @@ document.addEventListener("DOMContentLoaded", () => {
     // =========================
     // 並行チャネル
     // =========================
-    { id:"parallel-channel", 
-     title:"並行チャネル", 
-     summary:"（次に作成）", 
-     tags:["チャネル"], 
-     updatedAt:"2026-01-18",
+    {
+      id:"parallel-channel",
+      title:"並行チャネル",
+      summary:"（次に作成）",
+      tags:["チャネル"],
+      updatedAt:"2026-01-18",
       concept:
 `【役割】
 ・トレンドを「幅」で捉え、押し目/戻りの“ゾーン”を可視化する。
@@ -1121,7 +1173,7 @@ document.addEventListener("DOMContentLoaded", () => {
 ・トレンドが斜めに進行している（水平レンジでは効きにくい）
 ・波が比較的素直（ヒゲだらけの乱高下だと機能低下）`,
 
-where:
+      where:
 `【引き方（最小手数）】
 ① まず“基準線”：
 ・上昇：安値同士を2点以上で結ぶ（上昇トレンドライン）
@@ -1136,7 +1188,7 @@ where:
 ・刺す：1分（エントリーの詰め）
 ※ 1分だけでチャネル作るとノイズ化。`,
 
-action:
+      action:
 `【買う（ロング）】
 ・上昇チャネルの下限付近で反発の“事実”
 ・理想：下限→反発→VWAP回復→押し目成立
@@ -1153,23 +1205,24 @@ action:
 ・チャネル抜け＝押し/戻りの前提崩壊
 ・抜け方向に“追う”のではなく、一旦「定着→戻り/押し待ち」`,
 
-ng:
+      ng:
 `【典型NG】
 ・引けるまで点を探してチャネルを“捏造”する
 ・チャネル内のど真ん中で触る（期待値が薄い）
 ・抜けたのに「戻るはず」で粘る（損切り遅れ）
 ・上位足の水平線を無視して、チャネルだけを信じる`
-},
+    },
 
     // =========================
     // フィボナッチ
-    // =========================    
-    { id:"fibonacci", 
-     title:"フィボナッチ（使う場面限定）", 
-     summary:"（次に作成）", 
-     tags:["フィボナッチ"], 
-     updatedAt:"2026-01-18",
-     concept:
+    // =========================
+    {
+      id:"fibonacci",
+      title:"フィボナッチ（使う場面限定）",
+      summary:"（次に作成）",
+      tags:["フィボナッチ"],
+      updatedAt:"2026-01-18",
+      concept:
 `【役割（使いどころ限定）】
 ・「押し/戻りの“目安”」を数値化する補助線。
 ・水平線（レジサポ）より優先度は下。主役にはしない。
@@ -1180,7 +1233,7 @@ ng:
 ・直近の波（スイング高値↔安値）が誰の目にも分かる
 ・レンジ/乱高下/材料で飛ぶ局面では期待値が落ちる。`,
 
-where:
+      where:
 `【引く場所（最重要：波の選び方）】
 ・上昇：押し目候補を探す →「安値（起点）→高値（終点）」で引く
 ・下降：戻り売り候補を探す →「高値（起点）→安値（終点）」で引く
@@ -1193,7 +1246,7 @@ where:
 ・0.382 / 0.5 / 0.618（ここだけ）
 ※ レベルを増やすほど判断が遅れる。`,
 
-action:
+      action:
 `【買う（ロング）に使う場面】
 ・上昇トレンド中、押しで 0.382〜0.618 に到達
 ・到達後に「反発の事実」が出たらエントリー候補
@@ -1210,14 +1263,14 @@ action:
 ・水平線ど真ん中、VWAPど真ん中（攻防中）は見送る
 ・波が不明瞭なら引かない（＝使わない）`,
 
-ng:
+      ng:
 `【典型NG（負け筋）】
 ・レンジでフィボを当てに行く（当たるまで引き直す）
 ・“都合のいい波”を選んで正当化する
 ・レベルを増やしすぎて、線の森で動けなくなる
 ・0.618到達だけで先回り（反発/失速の事実なし）
 ・損切りを「起点」ではなく“気分”でズラす（破綻）`
- }
+    }
   ];
 
   function loadDict(){
@@ -1252,6 +1305,238 @@ ng:
     return dict[dictIndex] || dict[0] || DEFAULT_DICT[0];
   }
 
+  // -------------------------
+  // Web editor state
+  // -------------------------
+  let editorOpen = false;
+
+  function ensureEditor(){
+    const right = document.querySelector("#lectureBg .dict-right");
+    if(!right) return;
+
+    if(document.getElementById("dictEditor")) return;
+
+    const wrap = document.createElement("div");
+    wrap.className = "dict-editor";
+    wrap.id = "dictEditor";
+    wrap.style.display = "none";
+    wrap.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-bottom:10px;">
+        <div style="font-weight:900; font-size:12px; color:var(--text);">カード編集</div>
+        <button class="btn-sec" id="btnDictCloseEdit" style="padding:2px 8px;">閉じる</button>
+      </div>
+
+      <div class="row">
+        <div>
+          <label>タイトル</label>
+          <input id="edTitle" placeholder="例：フィボナッチ（使う場面限定）">
+        </div>
+        <div>
+          <label>要約（一覧に出る短文）</label>
+          <input id="edSummary" placeholder="例：補助線。水平線が薄い時だけ使う。">
+        </div>
+      </div>
+
+      <div class="row" style="margin-top:10px;">
+        <div>
+          <label>タグ（カンマ区切り）</label>
+          <input id="edTags" placeholder="例：フィボナッチ, 押し目, 戻り">
+        </div>
+        <div>
+          <label>ID（英数字/ハイフン 推奨）</label>
+          <input id="edId" placeholder="例：fibonacci">
+        </div>
+      </div>
+
+      <div style="margin-top:10px;">
+        <label>① 概念</label>
+        <textarea id="edConcept" placeholder="・改行OK（そのまま表示します）"></textarea>
+      </div>
+      <div style="margin-top:10px;">
+        <label>② 引く場所</label>
+        <textarea id="edWhere"></textarea>
+      </div>
+      <div style="margin-top:10px;">
+        <label>③ 実戦判断</label>
+        <textarea id="edAction"></textarea>
+      </div>
+      <div style="margin-top:10px;">
+        <label>④ NG例</label>
+        <textarea id="edNg"></textarea>
+      </div>
+
+      <div class="actions">
+        <button class="btn-primary" id="btnDictSave">保存（ローカル）</button>
+        <button class="btn-sec" id="btnDictDuplicate">複製</button>
+        <button class="btn-danger" id="btnDictDelete">削除</button>
+        <button class="btn-sec" id="btnDictExport">JSON書き出し</button>
+        <button class="btn-sec" id="btnDictImport">JSON取り込み</button>
+        <input type="file" id="dictImportFile" accept="application/json" style="display:none;">
+      </div>
+
+      <div class="hint">
+        ・保存先は localStorage（ブラウザ内）です。<br>
+        ・IDはユニーク推奨。空なら自動生成します。<br>
+        ・JSON書き出しでバックアップできます。
+      </div>
+    `;
+
+    right.appendChild(wrap);
+
+    // close
+    document.getElementById("btnDictCloseEdit").onclick = () => toggleEditor(false);
+
+    // export
+    document.getElementById("btnDictExport").onclick = () => {
+      const payload = JSON.stringify(loadDict(), null, 2);
+      const blob = new Blob([payload], {type:"application/json"});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `trade-dict_${todayISO()}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    };
+
+    // import
+    document.getElementById("btnDictImport").onclick = () => {
+      document.getElementById("dictImportFile").click();
+    };
+    document.getElementById("dictImportFile").addEventListener("change", async (e)=>{
+      const f = e.target.files && e.target.files[0];
+      if(!f) return;
+      try{
+        const text = await f.text();
+        const json = JSON.parse(text);
+        if(!Array.isArray(json)) throw new Error("配列JSONではありません");
+        saveDict(json);
+        dict = loadDict();
+        dictIndex = 0;
+        renderCard();
+        renderDictList();
+        alert("取り込み完了（ローカル）");
+      }catch(err){
+        alert("取り込み失敗: " + (err.message||err));
+      }finally{
+        e.target.value = "";
+      }
+    });
+
+    // save
+    document.getElementById("btnDictSave").onclick = () => {
+      const cur = currentCard();
+      const idRaw = (document.getElementById("edId").value||"").trim();
+      const id = idRaw || (cur?.id) || ("card-" + Date.now());
+
+      const card = {
+        id,
+        title: (document.getElementById("edTitle").value||"").trim() || "（無題）",
+        summary: (document.getElementById("edSummary").value||"").trim(),
+        tags: (document.getElementById("edTags").value||"").split(",").map(s=>s.trim()).filter(Boolean),
+        updatedAt: todayISO(),
+        concept: (document.getElementById("edConcept").value||"").trim(),
+        where: (document.getElementById("edWhere").value||"").trim(),
+        action: (document.getElementById("edAction").value||"").trim(),
+        ng: (document.getElementById("edNg").value||"").trim()
+      };
+
+      let arr = loadDict();
+      const idx = arr.findIndex(x=>x.id===id);
+      if(idx>=0) arr[idx]=card;
+      else arr.push(card);
+
+      saveDict(arr);
+      dict = loadDict();
+
+      const realIdx = dict.findIndex(x=>x.id===id);
+      if(realIdx>=0) dictIndex = realIdx;
+
+      renderCard();
+      renderDictList();
+      alert("保存しました（ローカル）");
+    };
+
+    // duplicate
+    document.getElementById("btnDictDuplicate").onclick = () => {
+      const cur = currentCard();
+      if(!cur) return;
+      const base = {...cur};
+      base.id = (cur.id||"card") + "-copy-" + Date.now();
+      base.title = (cur.title||"") + "（コピー）";
+      base.updatedAt = todayISO();
+      const arr = loadDict();
+      arr.push(base);
+      saveDict(arr);
+      dict = loadDict();
+      dictIndex = dict.findIndex(x=>x.id===base.id);
+      renderCard(); renderDictList();
+      fillEditorFromCurrent();
+      alert("複製しました");
+    };
+
+    // delete
+    document.getElementById("btnDictDelete").onclick = () => {
+      const cur = currentCard();
+      if(!cur?.id) return;
+      if(!confirm(`削除しますか？\n${cur.title}\n(${cur.id})`)) return;
+      const arr = loadDict().filter(x=>x.id!==cur.id);
+      saveDict(arr);
+      dict = loadDict();
+      dictIndex = Math.max(0, Math.min(dictIndex, dict.length-1));
+      renderCard(); renderDictList();
+      fillEditorFromCurrent();
+      alert("削除しました");
+    };
+  }
+
+  function fillEditorFromCurrent(){
+    ensureEditor();
+    const c = currentCard() || {};
+    const $v = (id)=>document.getElementById(id);
+
+    $v("edTitle").value   = c.title || "";
+    $v("edSummary").value = c.summary || "";
+    $v("edTags").value    = (c.tags||[]).join(", ");
+    $v("edId").value      = c.id || "";
+    $v("edConcept").value = c.concept || "";
+    $v("edWhere").value   = c.where || "";
+    $v("edAction").value  = c.action || "";
+    $v("edNg").value      = c.ng || "";
+  }
+
+  function toggleEditor(on){
+    ensureEditor();
+    const ed = document.getElementById("dictEditor");
+    if(!ed) return;
+    editorOpen = (on===undefined) ? !editorOpen : !!on;
+    ed.style.display = editorOpen ? "block" : "none";
+    if(editorOpen) fillEditorFromCurrent();
+  }
+
+  function bindEditorButtons(){
+    const bEdit = document.getElementById("btnDictEdit");
+    const bNew  = document.getElementById("btnDictNew");
+    if(bEdit) bEdit.onclick = ()=>toggleEditor(true);
+
+    if(bNew) bNew.onclick = ()=>{
+      ensureEditor();
+      toggleEditor(true);
+
+      // clear for new card
+      document.getElementById("edTitle").value="";
+      document.getElementById("edSummary").value="";
+      document.getElementById("edTags").value="";
+      document.getElementById("edId").value="";
+      document.getElementById("edConcept").value="";
+      document.getElementById("edWhere").value="";
+      document.getElementById("edAction").value="";
+      document.getElementById("edNg").value="";
+      document.getElementById("edTitle").focus();
+    };
+  }
+
   function renderCard(){
     const c = currentCard();
     dictTitle.textContent = c.title || "-";
@@ -1261,6 +1546,9 @@ ng:
     dictWhere.textContent = c.where || "-";
     dictAction.textContent = c.action || "-";
     dictNg.textContent = c.ng || "-";
+
+    // editor follows current selection
+    if(editorOpen) fillEditorFromCurrent();
   }
 
   function filteredDict(){
@@ -1295,14 +1583,23 @@ ng:
     dict = loadDict();
     const hIdx = dict.findIndex(x=>x.id==="horizontal-line");
     if(hIdx >= 0) dictIndex = hIdx;
+
     renderCard();
     renderDictList();
+
     if(lectureSavedHint) lectureSavedHint.style.display = "none";
     lectureBg.style.display = "flex";
+
+    // bind editor buttons after modal is available
+    bindEditorButtons();
+    ensureEditor();
+
     setTimeout(()=>dictSearch?.focus(), 50);
   }
+
   function closeLecture(){
     lectureBg.style.display = "none";
+    // editor stays in DOM; state can remain
   }
 
   $("btnLecture").onclick = openLecture;
@@ -1310,16 +1607,21 @@ ng:
 
   $("btnDictPrev").onclick = ()=>{
     dictIndex = Math.max(0, dictIndex - 1);
-    renderCard(); renderDictList();
-  };
-  $("btnDictNext").onclick = ()=>{
-    dictIndex = Math.min(dict.length - 1, dictIndex + 1);
-    renderCard(); renderDictList();
+    renderCard();
+    renderDictList();
   };
 
-  dictSearch.addEventListener("input", ()=>{
+  $("btnDictNext").onclick = ()=>{
+    dictIndex = Math.min(dict.length - 1, dictIndex + 1);
+    renderCard();
     renderDictList();
-  });
+  };
+
+  if(dictSearch){
+    dictSearch.addEventListener("input", ()=>{
+      renderDictList();
+    });
+  }
 
   $("btnLectureReset").onclick = () => {
     if(confirm("辞書カードを初期状態に戻しますか？（ローカルの辞書データを初期化）")){
@@ -1359,7 +1661,6 @@ ${c.ng}
   lectureBg.addEventListener("click", (e)=>{
     if(e.target === lectureBg) closeLecture();
   });
-
   
 
   // =========================

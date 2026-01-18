@@ -195,6 +195,22 @@
   cursor:pointer;
   transition:.15s;
 }
+
+    /* 並び替え（ドラッグ）用：任意 */
+.dict-item{ 
+  user-select:none;
+}
+.dict-item[draggable="true"]{
+  cursor: grab;
+}
+.dict-item.dragging{
+  opacity: .55;
+}
+.dict-item.drop-target{
+  outline: 2px solid rgba(103,211,255,0.55);
+  outline-offset: 2px;
+}
+
 .dict-item:hover{ border-color:rgba(103,211,255,0.45); background:rgba(17,26,51,0.55); }
 .dict-item.active{
   border-color:rgba(103,211,255,0.75);
@@ -1563,10 +1579,18 @@ document.addEventListener("DOMContentLoaded", () => {
   function renderDictList(){
     const list = filteredDict();
     dictList.innerHTML = "";
+
+    const isSearching = ((dictSearch?.value || "").trim().length > 0);
+
     list.forEach((c)=>{
       const item = document.createElement("div");
       item.className = "dict-item" + (c.id === currentCard().id ? " active" : "");
       item.innerHTML = `<div class="dict-item-t">${c.title||"-"}</div><div class="dict-item-s">${c.summary||""}</div>`;
+
+      // 検索中は並び替えしない（フィルタ結果で並べ替えると事故るため）
+      item.draggable = !isSearching;
+      item.dataset.id = c.id;
+
       item.onclick = ()=>{
         const realIdx = dict.findIndex(x=>x.id === c.id);
         if(realIdx >= 0){
@@ -1575,9 +1599,82 @@ document.addEventListener("DOMContentLoaded", () => {
           renderDictList();
         }
       };
+
       dictList.appendChild(item);
     });
+
+    // 検索中は注記（任意）
+    if(isSearching){
+      const note = document.createElement("div");
+      note.className = "mini-text";
+      note.style.opacity = ".8";
+      note.style.marginTop = "10px";
+      note.textContent = "※ 検索中は並び替えできません（検索を消すとドラッグ可能）";
+      dictList.appendChild(note);
+    }
   }
+
+    // =========================
+  // DICT SORT (Drag & Drop)  ※左の一覧だけ
+  // =========================
+  let dragId = null;
+
+  function reorderDictById(fromId, toId){
+    if(!fromId || !toId || fromId === toId) return;
+
+    const fromIdx = dict.findIndex(x=>x.id === fromId);
+    const toIdx   = dict.findIndex(x=>x.id === toId);
+    if(fromIdx < 0 || toIdx < 0) return;
+
+    const [moved] = dict.splice(fromIdx, 1);
+    dict.splice(toIdx, 0, moved);
+
+    // 並び替えを永続化
+    saveDict(dict);
+
+    // 選択中カードのインデックスを追従
+    const cur = currentCard();
+    const newIdx = dict.findIndex(x=>x.id === (cur?.id));
+    if(newIdx >= 0) dictIndex = newIdx;
+  }
+
+  // イベントはコンテナでまとめて拾う
+  dictList.addEventListener("dragstart", (e)=>{
+    const el = e.target.closest(".dict-item");
+    if(!el || !el.draggable) return;
+    dragId = el.dataset.id;
+    el.classList.add("dragging");
+    e.dataTransfer.effectAllowed = "move";
+  });
+
+  dictList.addEventListener("dragend", (e)=>{
+    const el = e.target.closest(".dict-item");
+    if(el) el.classList.remove("dragging");
+    dragId = null;
+    dictList.querySelectorAll(".dict-item.drop-target").forEach(x=>x.classList.remove("drop-target"));
+  });
+
+  dictList.addEventListener("dragover", (e)=>{
+    const over = e.target.closest(".dict-item");
+    if(!over || !over.draggable) return;
+    e.preventDefault(); // drop許可
+    dictList.querySelectorAll(".dict-item.drop-target").forEach(x=>x.classList.remove("drop-target"));
+    over.classList.add("drop-target");
+    e.dataTransfer.dropEffect = "move";
+  });
+
+  dictList.addEventListener("drop", (e)=>{
+    const over = e.target.closest(".dict-item");
+    if(!over || !over.draggable) return;
+    e.preventDefault();
+
+    const toId = over.dataset.id;
+    reorderDictById(dragId, toId);
+
+    // 再描画（左リストだけ更新）
+    renderDictList();
+  });
+
 
   function openLecture(){
     dict = loadDict();

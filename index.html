@@ -382,6 +382,46 @@
   color:var(--muted);
   opacity:.9;
 }
+/* =========================
+   DICT ONLY MODE (smartphone)
+   ========================= */
+body.dict-only .container,
+body.dict-only #lockBg,
+body.dict-only #configBg,
+body.dict-only #modalBg{
+  display:none !important;
+}
+
+/* 辞書モーダルを “ページ本体” として全画面化 */
+body.dict-only #lectureBg{
+  display:block !important;
+  position:fixed !important;
+  inset:0 !important;
+  background:transparent !important;
+  padding:0 !important;
+  z-index:9999 !important;
+}
+
+body.dict-only #lectureBg .modal-box{
+  width:100% !important;
+  height:100dvh !important;     /* iPhone対策 */
+  max-height:100dvh !important;
+  border-radius:0 !important;
+  padding:14px !important;
+  overflow:auto !important;
+}
+
+/* 辞書ヘッダー（検索/ボタン）をスマホで崩れにくく */
+body.dict-only #lectureBg .modal-box > div:first-child{
+  flex-wrap:wrap !important;
+  gap:8px !important;
+}
+
+body.dict-only #dictSearch{
+  width: min(560px, 100%) !important;
+}
+
+body.dict-only #btnCloseLecture{ display:none !important; }
 
   </style>
 </head>
@@ -699,6 +739,27 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
+
+    // =========================
+  // DICT ONLY MODE (hash #dict)
+  // =========================
+  const isDictOnly = () => location.hash === "#dict";
+
+  if(isDictOnly()){
+    document.body.classList.add("dict-only");
+  }
+
+  window.addEventListener("hashchange", ()=>{
+    if(isDictOnly()){
+      document.body.classList.add("dict-only");
+      // 辞書を開く（関数は下で定義されるが、hashchange時点では存在する）
+      setTimeout(()=>{ try{ openLecture(); }catch(e){} }, 0);
+    }else{
+      document.body.classList.remove("dict-only");
+      setTimeout(()=>{ try{ closeLecture(); }catch(e){} }, 0);
+    }
+  });
+
   // =========================
   // MASTER DATA & CONFIG
   // =========================
@@ -1677,6 +1738,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
   function openLecture(){
+
+      // 辞書専用モードなら起動時に自動で辞書を全画面表示
+  if(location.hash === "#dict"){
+    setTimeout(()=>openLecture(), 0);
+  }
+
     dict = loadDict();
     const hIdx = dict.findIndex(x=>x.id==="horizontal-line");
     if(hIdx >= 0) dictIndex = hIdx;

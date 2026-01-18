@@ -258,7 +258,7 @@
 }
 
 /* =========================
-   DICTIONARY UI FIX (v1)
+   DICTIONARY UI FIX (v2)  ※1×4 + 改行改善
    ========================= */
 
 /* ① 辞書モーダルだけ幅を最大化 */
@@ -270,6 +270,7 @@
 /* ② ヘッダー（検索＋ボタン列）が詰まらないように */
 #lectureBg .modal-box > div:first-child{
   flex-wrap: wrap;
+  gap: 8px;
 }
 #lectureBg #dictSearch{
   width: min(520px, 100%);
@@ -285,26 +286,31 @@
   #lectureBg .dict-wrap{ grid-template-columns: 1fr; }
 }
 
-/* ④ 右側カードの「中身」を2列化（PC時） */
+/* ④ 右側：1×4（縦に4つ）に固定 */
 #lectureBg .dict-grid{
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: 1fr;  /* 常に1列 */
   gap: 12px;
 }
-@media (min-width: 980px){
-  #lectureBg .dict-grid{
-    grid-template-columns: 1fr 1fr;
-  }
-  /* 2列化したとき、実戦判断とNG例が見切れやすいので少し余白 */
-  #lectureBg .dict-card-bd{ padding: 16px; }
+
+/* ⑤ 右側カードの余白・読みやすさ */
+#lectureBg .dict-card-bd{
+  padding: 16px;
 }
 
-/* ⑤ フォントを適正化（デカ過ぎ問題の抑制） */
-#lectureBg .dict-sec-h{ font-size: 11px; }
+/* ⑥ フォント/改行：段落改行を活かし、変な折返しを抑制 */
+#lectureBg .dict-sec-h{
+  font-size: 11px;
+}
 #lectureBg .dict-sec-b{
   font-size: 12.5px;
   line-height: 1.75;
-  white-space: normal;
+  color: #fff;
+
+  /* 改行を保持（textContent の \n をそのまま見せる） */
+  white-space: pre-wrap;
+
+  /* 長い英数字だけ適切に折る（日本語を変に割らない） */
   overflow-wrap: break-word;
   word-break: normal;
 }

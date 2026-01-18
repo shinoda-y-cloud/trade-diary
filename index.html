@@ -398,9 +398,23 @@
     <div class="mini-text" style="margin-bottom:8px;">
       ※ このノートはローカルに保存されます（ブラウザ内）。保存ボタンで確定。
     </div>
+    
+    <!-- ▼ 追加：辞書カード表示エリア -->
+    <div id="dictView" style="display:block;">
+      <div class="mini-text" style="margin:8px 0;">
+        ※ 「カード表示」→ 見る用。内容編集は下の「編集モード」で行います。
+      </div>
+      <div id="dictCards"></div>
+    </div>
+
+    <div style="display:flex; gap:8px; margin-top:10px; margin-bottom:8px;">
+      <button class="btn-sec" id="btnDictModeView" style="padding:2px 8px;">カード表示</button>
+      <button class="btn-sec" id="btnDictModeEdit" style="padding:2px 8px;">編集モード</button>
+    </div>
+    <!-- ▲ 追加ここまで -->
 
     <label style="margin-top:8px;">本文（自由に追記OK）</label>
-    <textarea id="lectureText" style="height:320px; min-height:240px; line-height:1.7;"
+    <textarea id="lectureText" style="height:320px; min-height:240px; line-height:1.7; display:none;"
       placeholder="ここに講義ノートを書きます。章立て・箇条書き推奨。"></textarea>
 
     <div style="display:flex; gap:10px; margin-top:10px;">
@@ -959,6 +973,133 @@ document.addEventListener("DOMContentLoaded", () => {
   lectureBg.addEventListener("click", (e)=>{
     if(e.target === lectureBg) closeLecture();
   });
+
+    // =========================
+  // DICTIONARY CARDS (render)
+  // =========================
+  const dictCardsEl = $("dictCards");
+  const dictView = $("dictView");
+  const btnDictModeView = $("btnDictModeView");
+  const btnDictModeEdit = $("btnDictModeEdit");
+
+  // 辞書カード：まずは「水平線」だけ
+  const DICT = [
+    {
+      key: "horizontal",
+      title: "《水平線》",
+      oneLiner: "多くの参加者が意識する「壁（レジサポ）」を価格帯として固定する",
+      when: [
+        "1時間足：当日の主戦場の壁を決める（最優先）",
+        "日足：大局の節目（上値余地/下値余地の上限）"
+      ],
+      how: [
+        "直近の目立つ高値・安値（1時間足）",
+        "前日高値・安値",
+        "キリ番（00/50）"
+      ],
+      exec: [
+        "反発は『当たった後の値動き』を見てから入る（先回り禁止）",
+        "ブレイクは『5分足 実体抜け』＋『戻しても割らない（定着）』"
+      ],
+      no: [
+        "抜けた直後に飛びつく（初動追い）",
+        "線を増やしすぎて判断が遅れる"
+      ],
+      checklist: [
+        "この線は「今の価格から上下10〜20%以内」にあるか？",
+        "反応の回数（2回以上）があるか？",
+        "損切り価格がこの線の外側に置けるか？"
+      ]
+    }
+  ];
+
+  function esc(s){
+    return String(s||"")
+      .replaceAll("&","&amp;")
+      .replaceAll("<","&lt;")
+      .replaceAll(">","&gt;")
+      .replaceAll('"',"&quot;")
+      .replaceAll("'","&#039;");
+  }
+
+  function renderDictCards(){
+    if(!dictCardsEl) return;
+    dictCardsEl.innerHTML = DICT.map(c => `
+      <div class="t-card" style="margin-bottom:12px;">
+        <div class="t-top" style="margin-bottom:6px;">
+          <div class="t-date-grp">
+            <div class="t-date">${esc(c.title)}</div>
+            <div class="mini-text">${esc(c.oneLiner)}</div>
+          </div>
+        </div>
+
+        <div class="t-foot" style="grid-template-columns:1fr; gap:10px;">
+          <div class="t-item">
+            <strong>使う場面</strong>
+            <ul style="margin:6px 0 0 18px; color:var(--text);">
+              ${c.when.map(x=>`<li>${esc(x)}</li>`).join("")}
+            </ul>
+          </div>
+
+          <div class="t-item">
+            <strong>引き方</strong>
+            <ul style="margin:6px 0 0 18px; color:var(--text);">
+              ${c.how.map(x=>`<li>${esc(x)}</li>`).join("")}
+            </ul>
+          </div>
+
+          <div class="t-item">
+            <strong>実戦判断（やる）</strong>
+            <ul style="margin:6px 0 0 18px; color:var(--text);">
+              ${c.exec.map(x=>`<li>${esc(x)}</li>`).join("")}
+            </ul>
+          </div>
+
+          <div class="t-item">
+            <strong>見送り（やらない）</strong>
+            <ul style="margin:6px 0 0 18px; color:var(--text);">
+              ${c.no.map(x=>`<li>${esc(x)}</li>`).join("")}
+            </ul>
+          </div>
+
+          <div class="t-item">
+            <strong>チェック（保存版）</strong>
+            <ul style="margin:6px 0 0 18px; color:var(--text);">
+              ${c.checklist.map(x=>`<li>${esc(x)}</li>`).join("")}
+            </ul>
+          </div>
+        </div>
+      </div>
+    `).join("");
+  }
+
+  // モーダルを開いた時にカードを描画
+  const _openLecture = openLecture;
+  openLecture = function(){
+    _openLecture();
+    renderDictCards();
+    // 初期表示：カード
+    if(dictView) dictView.style.display="block";
+    if(lectureText) lectureText.style.display="none";
+  };
+
+  // 表示切替
+  if(btnDictModeView){
+    btnDictModeView.onclick = ()=>{
+      dictView.style.display="block";
+      lectureText.style.display="none";
+      renderDictCards();
+    };
+  }
+  if(btnDictModeEdit){
+    btnDictModeEdit.onclick = ()=>{
+      dictView.style.display="none";
+      lectureText.style.display="block";
+      // 編集モードに入ったら現在テキストを表示（従来通り）
+      lectureText.value = getLecture();
+      setTimeout(()=>lectureText.focus(), 50);
+    };
+  }
 
   // =========================
   // GITHUB STORAGE

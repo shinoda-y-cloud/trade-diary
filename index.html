@@ -984,254 +984,198 @@ document.addEventListener("DOMContentLoaded", () => {
     URL.revokeObjectURL(url);
   };
 
+
   // =========================
-  // LECTURE NOTE (localStorage)
+  // DICTIONARY (CARD UI)
   // =========================
-  const LECTURE_KEY = "tradeDiary_lecture_v1";
-  const DEFAULT_LECTURE = `
-【トレード講義ノート（船長用）】
-目的：勝つためではなく「負けを回避し、再現性のある行動」を固定化する
+  const DICT_KEY = "tradeDiary_dict_v1";
 
-====================================
-01. エントリー判断（必ず三択）
-====================================
-- やる：条件が揃っている（根拠が複数一致）
-- やらない：根拠不足 / 形が悪い / ルール違反
-- 様子見：方向は見えるが、条件が1つ欠ける（初動を追わない）
+  const DEFAULT_DICT = [
+    {
+      id: "horizontal-line",
+      title: "水平線（レジサポ）",
+      summary: "最優先。全員が見ている“共通の壁”を作る。",
+      tags: ["水平線", "レジサポ", "日足", "1時間足"],
+      updatedAt: "2026-01-18",
+      concept:
+`【役割】
+・“皆が意識する価格”を特定し、無駄な売買（ノイズ）を減らす。
+・デイトレでは「入る場所」よりも「入ってはいけない場所」を明確化する。`,
+      where:
+`【優先度A：必須（まずここだけ）】
+・前日高値／前日安値
+・日足・1時間足の目立つ高値／安値（直近中心）
+・キリ番（例：2500 / 5000）
 
-【やる の最低条件】
-- ① 方向（上位足 or 当日トレンド）が明確
-- ② 価格が“基準線”（VWAP/EMA/節目）で反応した事実がある
-- ③ 損切りが価格で置ける（曖昧な損切りは禁止）
+【足の使い分け】
+・引く：日足・1時間足（信頼）
+・刺す：5分足（実行）
+※ 5分足だけで引いた線は“ノイズ化”しやすい。`,
+      action:
+`【買う（ロング）】
+・下→上に超えて「定着」後の押し（抵抗→支持転換）
+・水平線付近で反発した“事実”（ヒゲ反発・出来高増）を確認してから
 
-====================================
-02. 見送り条件（最重要：1つでも該当で「やらない」）
-====================================
-- 初動を逃したのに追いかけたくなっている（飛びつき）
-- 損切り価格が「ここ割れたらヤバい」ではなく気分になっている
-- 板・歩み値が荒く、約定が滑る（値幅だけで見ている）
-- “根拠が1個だけ”で入ろうとしている（単発根拠）
-- すでに焦り/怒り/取り返したいが出ている（感情トレード）
+【売る（ショート）】
+・上→下に割って「定着」後の戻り（支持→抵抗転換）
+・水平線付近で上値が止められた“事実”を確認してから
 
-====================================
-03. GU/GD（寄り付き～15分）
-====================================
-- 原則：寄りの最初は触らない（初動は追わない）
-- 例外：① 初押しが明確 ② 節目/VWAPで反応 ③ 出来高が素直
-- NG：GU天井の高値掴み、GD底のナンピン
+【見送る（最重要）】
+・攻防中（水平線ど真ん中）は触らない
+・乖離が大きい初動は追わない（押し／戻り待ち）`,
+      ng:
+`【典型NG】
+・反発“するはず”で先回り（事実がない）
+・線を増やしすぎて判断が遅れる
+・上位足の線を無視して5分足だけで戦う（ダマシ率↑）`
+    },
+    { id:"parallel-channel", title:"並行チャネル", summary:"（次に作成）", tags:["チャネル"], updatedAt:"2026-01-18",
+      concept:"-", where:"-", action:"-", ng:"-" },
+    { id:"fibonacci", title:"フィボナッチ（使う場面限定）", summary:"（次に作成）", tags:["フィボナッチ"], updatedAt:"2026-01-18",
+      concept:"-", where:"-", action:"-", ng:"-" }
+  ];
 
-====================================
-04. VWAP/EMA（実戦ルール）
-====================================
-- VWAP上：ロング優位（ただし乖離拡大は追わない）
-- VWAP下：ショート優位（ただし叩き売りは追わない）
-- VWAP攻防：結論を急がない（抜けて“定着”確認）
-
-- EMAは「傾き＞位置」。傾きが鈍い日は“伸びない”前提。
-
-====================================
-05. 典型負けパターン（自分用）
-====================================
-- 逆張り癖：下がったから買う/上がったから売る（根拠なし）
-- 飛びつき：陽線2～3本見てから追う（遅い）
-- 損切り遅れ：一度戻る期待で粘る（期待トレード）
-- ロット過多：初手で重くして判断が鈍る
-
-====================================
-06. 典型勝ちパターン（再現）
-====================================
-- GU→初押し（押し目が価格で定義できる）
-- OR（寄り高/寄り安）ブレイク→定着確認→追随
-- 節目反発（前日高値/安値、キリ番、VWAP）での反応を見てから入る
-
-====================================
-07. 明日のテンプレ（毎日コピペ）
-====================================
-- 今日の最大反省（1行）：
-- 明日やらないこと（1つ）：
-- 明日やること（1つ）：
-- 見送り条件（該当したら撤退/ノートレ）：
-`.trim();
-
-
-  function getLecture(){
-    return localStorage.getItem(LECTURE_KEY) || DEFAULT_LECTURE;
+  function loadDict(){
+    try{
+      const raw = localStorage.getItem(DICT_KEY);
+      if(!raw) return DEFAULT_DICT.slice();
+      const arr = JSON.parse(raw);
+      return Array.isArray(arr) ? arr : DEFAULT_DICT.slice();
+    }catch{
+      return DEFAULT_DICT.slice();
+    }
   }
-  function setLecture(text){
-    localStorage.setItem(LECTURE_KEY, text);
+  function saveDict(arr){
+    localStorage.setItem(DICT_KEY, JSON.stringify(arr || []));
   }
+
+  let dict = loadDict();
+  let dictIndex = 0;
 
   const lectureBg = $("lectureBg");
-  const lectureText = $("lectureText");
+  const dictList = $("dictList");
+  const dictTitle = $("dictTitle");
+  const dictMeta = $("dictMeta");
+  const dictConcept = $("dictConcept");
+  const dictWhere = $("dictWhere");
+  const dictAction = $("dictAction");
+  const dictNg = $("dictNg");
+  const dictSearch = $("dictSearch");
   const lectureSavedHint = $("lectureSavedHint");
 
+  function currentCard(){
+    return dict[dictIndex] || dict[0] || DEFAULT_DICT[0];
+  }
+
+  function renderCard(){
+    const c = currentCard();
+    dictTitle.textContent = c.title || "-";
+    const tags = (c.tags||[]).map(t=>`#${t}`).join(" ");
+    dictMeta.textContent = `更新: ${c.updatedAt||"-"}　${tags}`;
+    dictConcept.textContent = c.concept || "-";
+    dictWhere.textContent = c.where || "-";
+    dictAction.textContent = c.action || "-";
+    dictNg.textContent = c.ng || "-";
+  }
+
+  function filteredDict(){
+    const q = (dictSearch?.value || "").trim().toLowerCase();
+    if(!q) return dict;
+    return dict.filter(c=>{
+      const hay = `${c.title||""} ${(c.tags||[]).join(" ")} ${c.summary||""}`.toLowerCase();
+      return hay.includes(q);
+    });
+  }
+
+  function renderDictList(){
+    const list = filteredDict();
+    dictList.innerHTML = "";
+    list.forEach((c)=>{
+      const item = document.createElement("div");
+      item.className = "dict-item" + (c.id === currentCard().id ? " active" : "");
+      item.innerHTML = `<div class="dict-item-t">${c.title||"-"}</div><div class="dict-item-s">${c.summary||""}</div>`;
+      item.onclick = ()=>{
+        const realIdx = dict.findIndex(x=>x.id === c.id);
+        if(realIdx >= 0){
+          dictIndex = realIdx;
+          renderCard();
+          renderDictList();
+        }
+      };
+      dictList.appendChild(item);
+    });
+  }
+
   function openLecture(){
-    lectureText.value = getLecture();
-    lectureSavedHint.style.display = "none";
+    dict = loadDict();
+    const hIdx = dict.findIndex(x=>x.id==="horizontal-line");
+    if(hIdx >= 0) dictIndex = hIdx;
+    renderCard();
+    renderDictList();
+    if(lectureSavedHint) lectureSavedHint.style.display = "none";
     lectureBg.style.display = "flex";
-    // モーダル表示後にフォーカス
-    setTimeout(()=>lectureText.focus(), 50);
+    setTimeout(()=>dictSearch?.focus(), 50);
   }
   function closeLecture(){
     lectureBg.style.display = "none";
   }
 
-  // 既存のボタンに接続
   $("btnLecture").onclick = openLecture;
   $("btnCloseLecture").onclick = closeLecture;
 
-  $("btnLectureSave").onclick = () => {
-    setLecture((lectureText.value||"").trim());
-    lectureSavedHint.style.display = "block";
-    setTimeout(()=>lectureSavedHint.style.display="none", 1200);
+  $("btnDictPrev").onclick = ()=>{
+    dictIndex = Math.max(0, dictIndex - 1);
+    renderCard(); renderDictList();
+  };
+  $("btnDictNext").onclick = ()=>{
+    dictIndex = Math.min(dict.length - 1, dictIndex + 1);
+    renderCard(); renderDictList();
   };
 
-  $("btnLectureCopy").onclick = async () => {
-    const txt = (lectureText.value||"").trim();
-    await navigator.clipboard.writeText(txt);
-    alert("講義ノートをコピーしました。");
-  };
+  dictSearch.addEventListener("input", ()=>{
+    renderDictList();
+  });
 
   $("btnLectureReset").onclick = () => {
-    if(confirm("講義ノートを初期状態に戻しますか？")){
-      setLecture(DEFAULT_LECTURE);
-      lectureText.value = DEFAULT_LECTURE;
-      lectureSavedHint.style.display = "block";
-      setTimeout(()=>lectureSavedHint.style.display="none", 1200);
+    if(confirm("辞書カードを初期状態に戻しますか？（ローカルの辞書データを初期化）")){
+      dict = DEFAULT_DICT.slice();
+      saveDict(dict);
+      dictIndex = 0;
+      renderCard();
+      renderDictList();
+      if(lectureSavedHint){
+        lectureSavedHint.style.display = "block";
+        setTimeout(()=>lectureSavedHint.style.display="none", 1200);
+      }
     }
   };
 
-  // 背景クリックで閉じる（誤爆防止で外側のみ）
+  $("btnLectureCopy").onclick = async () => {
+    const c = currentCard();
+    const out =
+`# ${c.title}
+
+## ① 概念
+${c.concept}
+
+## ② 引く場所（時間足 × 優先度）
+${c.where}
+
+## ③ 実戦判断（買う／売る／見送る）
+${c.action}
+
+## ④ NG例（負けパターン）
+${c.ng}
+`.trim();
+    await navigator.clipboard.writeText(out);
+    alert("このカードをコピーしました。");
+  };
+
   lectureBg.addEventListener("click", (e)=>{
     if(e.target === lectureBg) closeLecture();
   });
 
-    // =========================
-  // DICTIONARY CARDS (render)
-  // =========================
-  const dictCardsEl = $("dictCards");
-  const dictView = $("dictView");
-  const btnDictModeView = $("btnDictModeView");
-  const btnDictModeEdit = $("btnDictModeEdit");
-
-  // 辞書カード：まずは「水平線」だけ
-  const DICT = [
-    {
-      key: "horizontal",
-      title: "《水平線》",
-      oneLiner: "多くの参加者が意識する「壁（レジサポ）」を価格帯として固定する",
-      when: [
-        "1時間足：当日の主戦場の壁を決める（最優先）",
-        "日足：大局の節目（上値余地/下値余地の上限）"
-      ],
-      how: [
-        "直近の目立つ高値・安値（1時間足）",
-        "前日高値・安値",
-        "キリ番（00/50）"
-      ],
-      exec: [
-        "反発は『当たった後の値動き』を見てから入る（先回り禁止）",
-        "ブレイクは『5分足 実体抜け』＋『戻しても割らない（定着）』"
-      ],
-      no: [
-        "抜けた直後に飛びつく（初動追い）",
-        "線を増やしすぎて判断が遅れる"
-      ],
-      checklist: [
-        "この線は「今の価格から上下10〜20%以内」にあるか？",
-        "反応の回数（2回以上）があるか？",
-        "損切り価格がこの線の外側に置けるか？"
-      ]
-    }
-  ];
-
-  function esc(s){
-    return String(s||"")
-      .replaceAll("&","&amp;")
-      .replaceAll("<","&lt;")
-      .replaceAll(">","&gt;")
-      .replaceAll('"',"&quot;")
-      .replaceAll("'","&#039;");
-  }
-
-  function renderDictCards(){
-    if(!dictCardsEl) return;
-    dictCardsEl.innerHTML = DICT.map(c => `
-      <div class="t-card" style="margin-bottom:12px;">
-        <div class="t-top" style="margin-bottom:6px;">
-          <div class="t-date-grp">
-            <div class="t-date">${esc(c.title)}</div>
-            <div class="mini-text">${esc(c.oneLiner)}</div>
-          </div>
-        </div>
-
-        <div class="t-foot" style="grid-template-columns:1fr; gap:10px;">
-          <div class="t-item">
-            <strong>使う場面</strong>
-            <ul style="margin:6px 0 0 18px; color:var(--text);">
-              ${c.when.map(x=>`<li>${esc(x)}</li>`).join("")}
-            </ul>
-          </div>
-
-          <div class="t-item">
-            <strong>引き方</strong>
-            <ul style="margin:6px 0 0 18px; color:var(--text);">
-              ${c.how.map(x=>`<li>${esc(x)}</li>`).join("")}
-            </ul>
-          </div>
-
-          <div class="t-item">
-            <strong>実戦判断（やる）</strong>
-            <ul style="margin:6px 0 0 18px; color:var(--text);">
-              ${c.exec.map(x=>`<li>${esc(x)}</li>`).join("")}
-            </ul>
-          </div>
-
-          <div class="t-item">
-            <strong>見送り（やらない）</strong>
-            <ul style="margin:6px 0 0 18px; color:var(--text);">
-              ${c.no.map(x=>`<li>${esc(x)}</li>`).join("")}
-            </ul>
-          </div>
-
-          <div class="t-item">
-            <strong>チェック（保存版）</strong>
-            <ul style="margin:6px 0 0 18px; color:var(--text);">
-              ${c.checklist.map(x=>`<li>${esc(x)}</li>`).join("")}
-            </ul>
-          </div>
-        </div>
-      </div>
-    `).join("");
-  }
-
-  // モーダルを開いた時にカードを描画
-  const _openLecture = openLecture;
-  openLecture = function(){
-    _openLecture();
-    renderDictCards();
-    // 初期表示：カード
-    if(dictView) dictView.style.display="block";
-    if(lectureText) lectureText.style.display="none";
-  };
-
-  // 表示切替
-  if(btnDictModeView){
-    btnDictModeView.onclick = ()=>{
-      dictView.style.display="block";
-      lectureText.style.display="none";
-      renderDictCards();
-    };
-  }
-  if(btnDictModeEdit){
-    btnDictModeEdit.onclick = ()=>{
-      dictView.style.display="none";
-      lectureText.style.display="block";
-      // 編集モードに入ったら現在テキストを表示（従来通り）
-      lectureText.value = getLecture();
-      setTimeout(()=>lectureText.focus(), 50);
-    };
-  }
+  
 
   // =========================
   // GITHUB STORAGE

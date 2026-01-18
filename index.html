@@ -1350,16 +1350,22 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   ];
 
-  function loadDict(){
-    try{
-      const raw = localStorage.getItem(DICT_KEY);
-      if(!raw) return DEFAULT_DICT.slice();
-      const arr = JSON.parse(raw);
-      return Array.isArray(arr) ? arr : DEFAULT_DICT.slice();
-    }catch{
-      return DEFAULT_DICT.slice();
-    }
+function loadDict(){
+  try{
+    const raw = localStorage.getItem(DICT_KEY);
+    if(!raw) return DEFAULT_DICT.slice();
+
+    const arr = JSON.parse(raw);
+
+    // ★ここが重要：空配列を弾く
+    if(Array.isArray(arr) && arr.length > 0) return arr;
+
+    return DEFAULT_DICT.slice();
+  }catch{
+    return DEFAULT_DICT.slice();
   }
+}
+
   function saveDict(arr){
     localStorage.setItem(DICT_KEY, JSON.stringify(arr || []));
   }

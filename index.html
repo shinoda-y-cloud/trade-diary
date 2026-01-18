@@ -158,6 +158,97 @@
     .cfg-section { margin-bottom:20px; border-bottom:1px solid var(--border); padding-bottom:12px; }
     .cfg-list { display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
     .cfg-add-row { display:flex; gap:8px; margin-top:8px; }
+
+    /* =========================
+   DICTIONARY (CARD UI)
+   ========================= */
+.dict-wrap{
+  display:grid;
+  grid-template-columns: 280px 1fr;
+  gap:12px;
+}
+@media (max-width: 820px){
+  .dict-wrap{ grid-template-columns: 1fr; }
+}
+.dict-left{
+  border:1px solid var(--border);
+  background:rgba(0,0,0,0.18);
+  border-radius:10px;
+  padding:10px;
+  max-height:70vh;
+  overflow:auto;
+}
+.dict-left-hd{
+  font-size:12px;
+  color:var(--muted);
+  font-weight:800;
+  padding:6px 6px 10px;
+  border-bottom:1px solid rgba(255,255,255,0.08);
+  margin-bottom:10px;
+}
+.dict-list{ display:flex; flex-direction:column; gap:8px; }
+.dict-item{
+  border:1px solid rgba(255,255,255,0.10);
+  background:rgba(17,26,51,0.35);
+  border-radius:10px;
+  padding:10px;
+  cursor:pointer;
+  transition:.15s;
+}
+.dict-item:hover{ border-color:rgba(103,211,255,0.45); background:rgba(17,26,51,0.55); }
+.dict-item.active{
+  border-color:rgba(103,211,255,0.75);
+  box-shadow:0 0 0 2px rgba(103,211,255,0.15) inset;
+}
+.dict-item-t{ font-size:13px; font-weight:900; color:var(--text); }
+.dict-item-s{ margin-top:4px; font-size:11px; color:var(--muted); line-height:1.45; }
+
+.dict-actions{ display:flex; gap:8px; margin-top:10px; }
+
+.dict-right{ max-height:70vh; overflow:auto; }
+.dict-card{
+  border:1px solid var(--border);
+  background:rgba(17,26,51,0.40);
+  border-radius:12px;
+  overflow:hidden;
+}
+.dict-card-hd{
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:10px;
+  padding:12px 14px;
+  border-bottom:1px solid rgba(255,255,255,0.10);
+  background:rgba(255,255,255,0.03);
+}
+.dict-title{ font-size:16px; font-weight:1000; letter-spacing:.3px; }
+.dict-card-bd{ padding:14px; }
+.dict-grid{ display:grid; grid-template-columns: 1fr; gap:10px; }
+
+.dict-sec{
+  border:1px solid rgba(255,255,255,0.10);
+  border-radius:12px;
+  padding:10px 12px;
+  background:rgba(0,0,0,0.18);
+}
+.dict-sec-h{
+  font-size:11px;
+  color:var(--accent);
+  font-weight:900;
+  opacity:.95;
+  margin-bottom:6px;
+}
+.dict-sec-b{
+  font-size:12.5px;
+  line-height:1.7;
+  color:#fff;
+  white-space:pre-wrap;
+}
+.dict-foot{
+  margin-top:10px;
+  border-top:1px solid rgba(255,255,255,0.08);
+  padding-top:10px;
+}
   </style>
 </head>
 
@@ -384,49 +475,90 @@
   </div>
 </div>
 
-<!-- 📘 講義ノート -->
+<!-- 📘 辞書カード（旧：講義ノート） -->
 <div class="overlay" id="lectureBg">
   <div class="modal-box">
     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-      <h3 style="margin:0;">📘 トレード講義ノート</h3>
-      <div style="display:flex; gap:8px;">
+      <h3 style="margin:0;">📚 トレード辞書（カード）</h3>
+      <div style="display:flex; gap:8px; align-items:center;">
+        <input id="dictSearch" placeholder="検索（例：水平線 / VWAP）"
+               style="width:240px; background:rgba(0,0,0,0.25); border:1px solid var(--border); color:var(--text);
+                      border-radius:6px; padding:8px; outline:none; font-size:12px;" />
         <button class="btn-sec" id="btnLectureReset" style="padding:2px 8px;">初期に戻す</button>
         <button class="btn-sec" id="btnCloseLecture" style="padding:2px 8px;">閉じる</button>
       </div>
     </div>
 
-    <div class="mini-text" style="margin-bottom:8px;">
-      ※ このノートはローカルに保存されます（ブラウザ内）。保存ボタンで確定。
+    <div class="mini-text" style="margin-bottom:10px;">
+      ※ 辞書カードはローカル保存（ブラウザ内）。「初期に戻す」は辞書カードを初期状態へ戻します。
     </div>
-    
-    <!-- ▼ 追加：辞書カード表示エリア -->
-    <div id="dictView" style="display:block;">
-      <div class="mini-text" style="margin:8px 0;">
-        ※ 「カード表示」→ 見る用。内容編集は下の「編集モード」で行います。
+
+    <div class="dict-wrap">
+      <div class="dict-left">
+        <div class="dict-left-hd">カード一覧</div>
+        <div id="dictList" class="dict-list"></div>
+
+        <div class="dict-actions">
+          <button class="btn-sec" id="btnLectureCopy" style="flex:1;">このカードをコピー</button>
+        </div>
+
+        <div class="mini-text" style="opacity:.8; margin-top:8px;">
+          ※ まずは《水平線》を完成形に固定し、次に他カードを追加していきます。
+        </div>
       </div>
-      <div id="dictCards"></div>
-    </div>
 
-    <div style="display:flex; gap:8px; margin-top:10px; margin-bottom:8px;">
-      <button class="btn-sec" id="btnDictModeView" style="padding:2px 8px;">カード表示</button>
-      <button class="btn-sec" id="btnDictModeEdit" style="padding:2px 8px;">編集モード</button>
-    </div>
-    <!-- ▲ 追加ここまで -->
+      <div class="dict-right">
+        <div class="dict-card">
+          <div class="dict-card-hd">
+            <div>
+              <div id="dictTitle" class="dict-title">-</div>
+              <div id="dictMeta" class="mini-text" style="margin-top:4px; opacity:.9;">-</div>
+            </div>
+            <div style="display:flex; gap:8px;">
+              <button class="btn-sec" id="btnDictPrev" title="前のカード">←</button>
+              <button class="btn-sec" id="btnDictNext" title="次のカード">→</button>
+            </div>
+          </div>
 
-    <label style="margin-top:8px;">本文（自由に追記OK）</label>
-    <textarea id="lectureText" style="height:320px; min-height:240px; line-height:1.7; display:none;"
-      placeholder="ここに講義ノートを書きます。章立て・箇条書き推奨。"></textarea>
+          <div class="dict-card-bd">
+            <div class="dict-grid">
+              <div class="dict-sec">
+                <div class="dict-sec-h">① 概念（何のための線か）</div>
+                <div id="dictConcept" class="dict-sec-b">-</div>
+              </div>
 
-    <div style="display:flex; gap:10px; margin-top:10px;">
-      <button class="btn-primary" id="btnLectureSave" style="flex:1;">保存</button>
-      <button class="btn-sec" id="btnLectureCopy">コピー</button>
-    </div>
+              <div class="dict-sec">
+                <div class="dict-sec-h">② 引く場所（時間足 × 優先度）</div>
+                <div id="dictWhere" class="dict-sec-b">-</div>
+              </div>
 
-    <div class="mini-text" id="lectureSavedHint" style="display:none; margin-top:8px; color:var(--good);">
-      保存しました。
+              <div class="dict-sec">
+                <div class="dict-sec-h">③ 実戦判断（買う／売る／見送る）</div>
+                <div id="dictAction" class="dict-sec-b">-</div>
+              </div>
+
+              <div class="dict-sec">
+                <div class="dict-sec-h">④ NG例（負けパターン）</div>
+                <div id="dictNg" class="dict-sec-b">-</div>
+              </div>
+            </div>
+
+            <div class="dict-foot">
+              <div class="mini-text" style="opacity:.9;">
+                ※ ルールは「長文を読む」ためではなく「ザラ場で3秒で判断」するためにあります。
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="lectureSavedHint" class="mini-text" style="display:none; margin-top:10px; color:var(--good);">
+          保存しました。
+        </div>
+      </div>
     </div>
   </div>
 </div>
+
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {

@@ -2,8 +2,8 @@
   "meta": {
     "app": "trade-diary-ultimate",
     "version": "v2",
-    "exportedAt": "2026-03-02T17:16:04.029Z",
-    "count": 27
+    "exportedAt": "2026-03-02T17:17:26.455Z",
+    "count": 28
   },
   "data": [
     {
@@ -490,6 +490,23 @@
       "nextAction": "未入力",
       "memo": "",
       "updatedAt": "2026-03-02T17:16:03.104Z"
+    },
+    {
+      "date": "2026-02-27",
+      "marketType": "トレンド",
+      "result": "勝ち",
+      "pnl": 14270,
+      "tickers": [
+        "5020 ENEOS"
+      ],
+      "trades": "4",
+      "bias": "ロング",
+      "lossCause": "未入力",
+      "keptRule": "エントリー待てた",
+      "grade": "S",
+      "nextAction": "寄り15分は触らない",
+      "memo": "負けなしのトレード４回とも勝ち",
+      "updatedAt": "2026-03-02T17:17:25.945Z"
     },
     {
       "date": "2026-03-02",
